@@ -208,7 +208,7 @@
         }
         
         // Load symbols and expiries from JSON
-        fetch('/static/symbol.json?v=' + Date.now())
+        fetch('{% static "symbol.json" %}?v=' + Date.now())
             .then(response => response.json())
             .then(data => {
                 symbolData = data.expiry_dates;
