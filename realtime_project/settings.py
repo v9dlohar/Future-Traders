@@ -33,7 +33,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-%^uu(^t&)w11g74te%bf@&d2-p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'https://future-traders-production.up.railway.app']
 
 
 # Application definition
@@ -109,7 +109,7 @@ else:
 DATABASE_CONNECTION_POOLING = True
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://future-traders-production.up.railway.app/",
+    "https://future-traders-production.up.railway.app"
 ]
 
 # CORS settings for AJAX
@@ -219,6 +219,7 @@ LOGGING = {
         },
     },
 }
+
 
 
 
