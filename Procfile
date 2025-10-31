@@ -1,2 +1,1 @@
-web: gunicorn realtime_project.wsgi --log-file -
-release: python manage.py migrate
+web: python manage.py migrate && gunicorn realtime_project.wsgi --log-file -
