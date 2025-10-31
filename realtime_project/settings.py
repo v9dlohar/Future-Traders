@@ -109,8 +109,7 @@ else:
 DATABASE_CONNECTION_POOLING = True
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://4feea14294e3.ngrok-free.app",
-    "http://4feea14294e3.ngrok-free.app"
+    "https://future-traders-production.up.railway.app/",
 ]
 
 # CORS settings for AJAX
@@ -220,5 +219,6 @@ LOGGING = {
         },
     },
 }
+
 
 
