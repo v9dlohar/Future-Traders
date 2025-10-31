@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Option Chain</title>
+    <link rel="stylesheet" href="{% static 'dashboard/optionchain.css' %}">
+</head>
+<body>
+    <h2>Welcome, {{ user.username }}</h2>
+    <div id="optionchain-container">
+        <table>
+            <thead>
+                <tr>
+                    {% for key in optionchain_data.0.keys %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in optionchain_data %}
+                    <tr>
+                        {% for value in row.values %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+
+    <script src="{% static 'dashboard/optionchain.js' %}"></script>
+</body>
+</html>

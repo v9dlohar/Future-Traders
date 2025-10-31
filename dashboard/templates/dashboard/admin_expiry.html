@@ -1,0 +1,162 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Admin - Update Expiry Dates{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-container { 
+        max-width: 800px; 
+        margin: 40px auto; 
+        background: rgba(255, 255, 255, 0.9); 
+        padding: 40px; 
+        border-radius: 20px; 
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        animation: fadeInScale 0.6s ease-out;
+    }
+    
+    .admin-container:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+    
+    @keyframes fadeInScale {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: 600; color: #495057; }
+    select, textarea { 
+        width: 100%; 
+        padding: 12px 16px; 
+        border: 1px solid rgba(255, 107, 53, 0.3); 
+        border-radius: 10px; 
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.8);
+        color: #2c3e50;
+        transition: all 0.3s ease;
+    }
+    select:focus, textarea:focus {
+        outline: none;
+        border-color: #ff6b35;
+        box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+        background: rgba(255, 255, 255, 0.95);
+    }
+    textarea { height: 120px; resize: vertical; }
+    .update-btn { 
+        background: linear-gradient(45deg, #ff6b35, #f7931e); 
+        color: white; 
+        padding: 14px 30px; 
+        border: none; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .update-btn:hover { 
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+    }
+    .current-data { 
+        background: rgba(255, 107, 53, 0.1); 
+        padding: 20px; 
+        border-radius: 10px; 
+        margin-bottom: 20px; 
+        border: 1px solid rgba(255, 107, 53, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .current-data:hover {
+        background: rgba(255, 107, 53, 0.15);
+        border-color: rgba(255, 107, 53, 0.3);
+        transform: translateX(5px);
+    }
+    .current-data h3 {
+        color: #ff6b35;
+        margin-bottom: 10px;
+    }
+    .messages { margin-bottom: 20px; }
+    .alert { padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+    .alert-success { background: rgba(16, 185, 129, 0.1); color: #059669; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .alert-error { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+    h1 {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+        font-size: 2rem;
+        transition: all 0.3s ease;
+        cursor: default;
+    }
+    
+    h1:hover {
+        transform: scale(1.02);
+        color: #ff6b35;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="admin-container">
+        <h1>Update Expiry Dates</h1>
+        
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="symbol">Symbol:</label>
+                <select name="symbol" id="symbol" onchange="showCurrentDates()">
+                    <option value="">Select Symbol</option>
+                    {% for symbol, dates in symbols_data.items %}
+                        <option value="{{ symbol }}">{{ symbol }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="current-data" id="currentData" style="display: none;">
+                <h3>Current Expiry Dates:</h3>
+                <div id="currentDatesDisplay"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="expiry_dates">New Expiry Dates (comma-separated, DD-MM-YYYY format):</label>
+                <textarea name="expiry_dates" id="expiry_dates" placeholder="25-11-2025, 30-12-2025, 27-01-2026"></textarea>
+            </div>
+            
+            <button type="submit" class="update-btn">Update Expiry Dates</button>
+        </form>
+        
+        <script>
+            const symbolsData = {{ symbols_data|safe }};
+            
+            function showCurrentDates() {
+                const symbol = document.getElementById('symbol').value;
+                const currentData = document.getElementById('currentData');
+                const currentDatesDisplay = document.getElementById('currentDatesDisplay');
+                
+                if (symbol && symbolsData[symbol]) {
+                    currentDatesDisplay.innerHTML = symbolsData[symbol].join(', ');
+                    currentData.style.display = 'block';
+                    document.getElementById('expiry_dates').value = symbolsData[symbol].join(', ');
+                } else {
+                    currentData.style.display = 'none';
+                }
+            }
+        </script>
+    </div>
+{% endblock %}

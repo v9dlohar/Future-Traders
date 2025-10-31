@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}Future Traders{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%);
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px 0 20px;
+            width: 100%;
+        }
+
+        .nav-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b35, #f7931e, #ff8c42);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-brand:hover {
+            transform: scale(1.03);
+            filter: brightness(1.1);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 15px;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .nav-links a {
+            color: #495057;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover {
+            color: #ff6b35;
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .nav-links a.active {
+            color: #ff6b35;
+            background: rgba(255, 107, 53, 0.15);
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white !important;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(45deg, #f7931e, #ff6b35);
+            transform: translateY(-1px);
+        }
+
+        .main-content {
+            min-height: calc(100vh - 80px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            position: relative;
+            transition: all 0.3s ease;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        .close:hover {
+            color: #ff6b35;
+            transform: rotate(90deg) scale(1.1);
+            transition: all 0.3s ease;
+        }
+
+        .modal h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal p, .modal ul {
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .modal ul {
+            padding-left: 20px;
+        }
+
+        .modal li {
+            margin-bottom: 8px;
+        }
+
+        .logout-link {
+            background: #e74c3c;
+            color: white !important;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .logout-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            color: #ff6b35 !important;
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: none;
+            color: #495057;
+            font-size: 16px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255, 107, 53, 0.1);
+            color: #ff6b35;
+        }
+
+        /* Reduce margin for theme button on option chain page */
+        .optionchain-theme-btn {
+            margin-top: -2px;
+        }
+
+        /* Light theme styles */
+        body.light-theme {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
+            color: #1a202c;
+        }
+
+        .light-theme .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            border-bottom: 1px solid rgba(255, 107, 53, 0.3);
+        }
+
+        .light-theme .nav-links a {
+            color: #2d3748;
+        }
+
+        .light-theme .nav-links a:hover {
+            color: #ff6b35;
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .light-theme .nav-links a.active {
+            color: #ff6b35;
+            background: rgba(255, 107, 53, 0.15);
+        }
+
+        .light-theme .theme-toggle-btn {
+            color: #2d3748;
+        }
+
+        .light-theme .theme-toggle-btn:hover {
+            color: #ff6b35;
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .light-theme .modal-content {
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .light-theme .modal h2 {
+            color: #1a202c;
+        }
+
+        .light-theme .modal p, .light-theme .modal ul {
+            color: #2d3748;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 10px;
+                flex-wrap: wrap;
+            }
+            .nav-brand {
+                font-size: 1.4rem;
+            }
+            .nav-links {
+                gap: 8px;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+                margin-top: 10px;
+            }
+            .nav-links a {
+                font-size: 12px;
+                padding: 5px 8px;
+            }
+            .logout-btn, .logout-link {
+                font-size: 12px;
+                padding: 5px 8px;
+            }
+            .theme-toggle-btn {
+                font-size: 14px;
+                padding: 5px 8px;
+            }
+            .modal-content {
+                margin: 5% auto;
+                padding: 15px;
+                width: 95%;
+            }
+            .navbar {
+                padding: 10px 0;
+            }
+        }
+        
+        /* Tablet Responsive */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .nav-container {
+                padding: 0 15px;
+            }
+            .nav-brand {
+                font-size: 1.6rem;
+            }
+            .nav-links {
+                gap: 12px;
+            }
+            .nav-links a {
+                font-size: 13px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">Future Traders</a>
+            <ul class="nav-links">
+                <li><a href="/" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a></li>
+                <li><a href="#" onclick="showFeatures()">Features</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'optionchain' %}" {% if request.resolver_match.url_name == 'optionchain' %}class="active"{% endif %}>Optionchain Dashboard</a></li>
+                    <li><a href="#" onclick="showAbout()">About us</a></li>
+                    <li><a href="#" onclick="showContact()">Contact</a></li>
+                    <li><a href="#" onclick="showSupport()">Support</a></li>
+                    <li><a href="#" class="logout-link" onclick="document.getElementById('logoutForm').submit()">Logout</a></li>
+                    {% if request.resolver_match.url_name == 'optionchain' %}
+                        <li><button id="navThemeToggle" class="theme-toggle-btn optionchain-theme-btn">🌙</button></li>
+                    {% endif %}
+                    {% if request.resolver_match.url_name != 'optionchain' %}
+                        <li><button id="navThemeToggle" class="theme-toggle-btn">🌙</button></li>
+                    {% endif %}
+                {% else %}
+                    <li><a href="#" onclick="showAbout()">About us</a></li>
+                    <li><a href="#" onclick="showContact()">Contact</a></li>
+                    <li><a href="{% url 'login' %}" {% if request.resolver_match.url_name == 'login' %}class="active"{% endif %}>Login</a></li>
+                    {% if request.resolver_match.url_name != 'optionchain' %}
+                        <li><button id="navThemeToggle" class="theme-toggle-btn">🌙</button></li>
+                    {% endif %}
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hidden logout form -->
+    {% if user.is_authenticated %}
+        <form id="logoutForm" method="post" action="{% url 'logout' %}" style="display: none;">
+            {% csrf_token %}
+        </form>
+    {% endif %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Modals -->
+    <div id="aboutModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('aboutModal')">&times;</span>
+            <h2>About Future Traders</h2>
+            <p>Future Traders is a professional options trading platform designed for serious traders who demand real-time data, advanced analytics, and reliable performance.</p>
+            <p>Our platform provides comprehensive option chain analysis for major Indian indices including NIFTY, BANKNIFTY, FINNIFTY, and MIDCPNIFTY with live market data and professional-grade tools.</p>
+            <p>Built with cutting-edge technology, we ensure fast data delivery, stable performance, and an intuitive user experience that helps traders make informed decisions.</p>
+        </div>
+    </div>
+
+    <div id="featuresModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('featuresModal')">&times;</span>
+            <h2>Platform Features</h2>
+            <ul>
+                <li><strong>Real-time Option Chain:</strong> Live data updates every 2 seconds</li>
+                <li><strong>Multi-Symbol Support:</strong> NIFTY, BANKNIFTY, FINNIFTY, MIDCPNIFTY</li>
+                <li><strong>Advanced Analytics:</strong> OI analysis, volume tracking, LTP monitoring</li>
+                <li><strong>Professional Interface:</strong> Clean, stable, and responsive design</li>
+                <li><strong>Strike Price Filtering:</strong> Customizable strike count display</li>
+                <li><strong>Theme Options:</strong> Light and dark mode support</li>
+                <li><strong>Mobile Responsive:</strong> Works seamlessly on all devices</li>
+                <li><strong>Secure Authentication:</strong> Protected user sessions</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('contactModal')">&times;</span>
+            <h2>Contact Us</h2>
+            <p><strong>Email:</strong> futuretraders147@gmail.com</p>
+            <p><strong>Phone:</strong> +91 9079875804</p>
+            <p><strong>Business Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM IST</p>
+            <p><strong>Address:</strong> Future Traders<br>
+            TVS Choraha, Kankroli, Rajsamand, Rajasthan - 313324</p>
+            <p>For technical support, trading queries, or partnership opportunities, feel free to reach out to us. Our team is committed to providing excellent service and support.</p>
+        </div>
+    </div>
+
+    <div id="supportModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('supportModal')">&times;</span>
+            <h2>Support & Help</h2>
+            <p><strong>Technical Support:</strong> Available 24/7 during market hours</p>
+            <p><strong>User Guide:</strong> Comprehensive documentation available in the dashboard</p>
+            <p><strong>FAQ:</strong> Common questions and troubleshooting tips</p>
+            <ul>
+                <li>How to interpret option chain data</li>
+                <li>Understanding OI and volume indicators</li>
+                <li>Setting up custom strike ranges</li>
+                <li>Using theme and display options</li>
+                <li>Account and session management</li>
+            </ul>
+            <p><strong>Emergency Support:</strong> For critical issues during trading hours, call our hotline at +91 9079875804</p>
+        </div>
+    </div>
+
+    <script>
+        function showAbout() {
+            document.getElementById('aboutModal').style.display = 'block';
+        }
+
+        function showFeatures() {
+            document.getElementById('featuresModal').style.display = 'block';
+        }
+
+        function showContact() {
+            document.getElementById('contactModal').style.display = 'block';
+        }
+
+        function showSupport() {
+            document.getElementById('supportModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = ['aboutModal', 'featuresModal', 'contactModal', 'supportModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = ['aboutModal', 'featuresModal', 'contactModal', 'supportModal'];
+                modals.forEach(modalId => {
+                    document.getElementById(modalId).style.display = 'none';
+                });
+            }
+        });
+
+        // Theme toggle functionality
+        const navThemeToggle = document.getElementById('navThemeToggle');
+        if (navThemeToggle) {
+            navThemeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('light-theme');
+                const isLight = document.body.classList.contains('light-theme');
+                this.textContent = isLight ? '☀️' : '🌙';
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            });
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+            if (navThemeToggle) navThemeToggle.textContent = '☀️';
+        }
+    </script>
+</body>
+</html>

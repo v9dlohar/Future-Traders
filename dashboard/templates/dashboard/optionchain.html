@@ -1,0 +1,653 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Option Chain - Future Traders{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'dashboard/optionchain.css' %}">
+<style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #e2e8f0; line-height: 1.6; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 0; }
+        .header { background: linear-gradient(135deg, #334155 0%, #1e293b 100%); border-bottom: 1px solid #475569; padding: 16px 24px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .header h2 { color: #f1f5f9; font-size: 18px; font-weight: 600; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        .controls { display: flex; gap: 16px; align-items: center; margin-top: 12px; }
+        .control-group { position: relative; }
+        .control-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #8b949e; font-size: 13px; }
+        .control-group input { padding: 10px 14px; border: 1px solid #475569; border-radius: 8px; font-size: 13px; background: rgba(51, 65, 85, 0.8); color: #f1f5f9; min-width: 130px; transition: all 0.3s ease; backdrop-filter: blur(10px); }
+        .control-group input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1); transform: translateY(-1px); }
+        .dropdown { position: absolute; top: 100%; left: 0; background: #21262d; border: 1px solid #30363d; border-radius: 8px; max-height: 250px; overflow-y: auto; display: none; z-index: 1000; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+        .dropdown div { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #30363d; font-size: 14px; color: #ffffff; transition: background 0.2s; }
+        .dropdown div:hover { background-color: #30363d; }
+        .dropdown div:last-child { border-bottom: none; }
+        .market-info { background: linear-gradient(135deg, #475569 0%, #334155 100%); padding: 12px 24px; border-bottom: 1px solid #64748b; display: flex; align-items: center; gap: 24px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .symbol-info { display: flex; align-items: center; gap: 16px; }
+        .symbol-name { font-size: 16px; font-weight: 700; color: #f1f5f9; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        .ltp-info { display: flex; align-items: center; gap: 8px; }
+        .ltp-value { font-size: 18px; font-weight: 800; color: #10b981; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        .table-container { background: #0d1117; margin: 0; overflow-x: auto; max-height: calc(100vh - 200px); overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        th { background: #161b22; color: #8b949e; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #2a3441; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #21262d; font-size: 12px; transition: background 0.2s; }
+        tbody tr:hover { background: #161b22; }
+        .calls-header { background: linear-gradient(135deg, #065f46 0%, #047857 100%) !important; color: #6ee7b7 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .puts-header { background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%) !important; color: #fca5a5 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .strike-header { background: linear-gradient(135deg, #92400e 0%, #b45309 100%) !important; color: #fcd34d !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1); }
+        .call-data { color: #34d399; font-weight: 500; }
+        .put-data { color: #f87171; font-weight: 500; }
+        .strike-price { background: linear-gradient(135deg, #374151 0%, #1f2937 100%) !important; color: #fbbf24 !important; font-weight: 800; font-size: 13px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        .positive { color: #10b981; font-weight: 700; }
+        .negative { color: #ef4444; font-weight: 700; }
+        .highlight-max { background: rgba(5, 150, 105, 0.4) !important; }
+        .logout-btn { background: #da3633; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; height: 40px; display: flex; align-items: center; justify-content: center; }
+        .logout-btn:hover { background: #b91c1c; transform: translateY(-1px); }
+        .theme-btn { background: #da3633; color: white; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; height: 40px; display: flex; align-items: center; justify-content: center; margin-top: -2px; }
+        .theme-btn:hover { background: #484f58; transform: translateY(-1px); }
+        
+        /* Enhanced Light theme */
+        body.light-theme { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: #1e293b; }
+        .light-theme .header { background: #f6f8fa; border-bottom: 1px solid #d0d7de; }
+        .light-theme .header h2 { color: #24292f; }
+        .light-theme .control-group input { background: #ffffff; color: #24292f; border: 1px solid #d0d7de; }
+        .light-theme .control-group input:focus { border-color: #0969da; box-shadow: 0 0 0 2px rgba(9, 105, 218, 0.2); }
+        .light-theme .control-group label { color: #656d76; }
+        .light-theme .dropdown { background: #ffffff; border: 1px solid #d0d7de; }
+        .light-theme .dropdown div { color: #24292f; border-bottom: 1px solid #d0d7de; }
+        .light-theme .dropdown div:hover { background-color: #f6f8fa; }
+        .light-theme .market-info { background: #f6f8fa; border-bottom: 1px solid #d0d7de; }
+        .light-theme .symbol-name { color: #24292f; }
+        .light-theme .table-container { background: #ffffff; }
+        .light-theme th { background: #f6f8fa; color: #656d76; border-bottom: 1px solid #d0d7de; }
+        .light-theme td { border-bottom: 1px solid #d0d7de; }
+        .light-theme tbody tr:hover { background: #f6f8fa; }
+        .light-theme .calls-header { background: #dafbe1 !important; color: #1a7f37 !important; }
+        .light-theme .puts-header { background: #ffebe9 !important; color: #cf222e !important; }
+        .light-theme .strike-header { background: #fff8c5 !important; color: #9a6700 !important; }
+        .light-theme .call-data { color: #1a7f37; }
+        .light-theme .put-data { color: #cf222e; }
+        .light-theme .strike-price { background: #f6f8fa !important; color: #9a6700 !important; }
+        .light-theme .positive { color: #1a7f37; }
+        .light-theme .negative { color: #cf222e; }
+        .light-theme .ltp-value { color: #1a7f37; }
+        .light-theme .ltp-line { border-top: 2px solid #0969da; background: linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.2), transparent); }
+        .light-theme .ltp-line::after { background: linear-gradient(135deg, #0969da 0%, #2563eb 50%, #1d4ed8 100%); box-shadow: 0 2px 8px rgba(9, 105, 218, 0.4); }
+        .light-theme .theme-btn { background: #f6f8fa; color: #24292f; border: 1px solid #d0d7de; }
+        .light-theme .theme-btn:hover { background: #f3f4f6; }
+        .light-theme .highlight-max { background: rgba(5, 150, 105, 0.3) !important; }
+        .ltp-line { border-top: 2px solid #58a6ff; background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.2), transparent); position: relative; }
+        .ltp-line::after { content: attr(data-ltp); position: absolute; left: 50%; top: -11px; transform: translateX(-50%); background: linear-gradient(135deg, #58a6ff 0%, #1f6feb 50%, #0969da 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(88, 166, 255, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; }
+        .volume-bar { height: 3px; background: #30363d; border-radius: 2px; margin-top: 4px; overflow: hidden; }
+        .volume-fill { height: 100%; background: linear-gradient(90deg, #58a6ff, #1f6feb); border-radius: 2px; transition: width 0.3s; }
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 5px; }
+            .header { padding: 12px; }
+            .controls { flex-direction: column; align-items: stretch; gap: 12px; }
+            .control-group { width: 100%; }
+            .control-group input { min-width: 100%; }
+            .market-info { flex-direction: column; align-items: flex-start; gap: 12px; padding: 12px; }
+            .table-container { margin: 0 -5px; max-height: calc(100vh - 250px); }
+            table { font-size: 10px; min-width: 600px; }
+            th, td { padding: 6px 4px; }
+            .symbol-name { font-size: 14px; }
+            .ltp-value { font-size: 16px; }
+        }
+        
+        /* Tablet Responsive */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .controls { justify-content: center; flex-wrap: wrap; }
+            .control-group { min-width: 200px; }
+            table { font-size: 11px; }
+            th, td { padding: 7px 5px; }
+        }
+        
+        /* Large Screen */
+        @media (min-width: 1025px) {
+            .container { max-width: 1400px; }
+            table { font-size: 12px; }
+            th, td { padding: 8px 6px; }
+        }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2>Welcome, {{ user.first_name }} {{ user.last_name }}</h2>
+            </div>
+            <div class="controls">
+                <div class="control-group">
+                    <label>Symbol</label>
+                    <input type="text" id="symbolInput" value="NSE:NIFTY50-INDEX" placeholder="Search symbol..." autocomplete="off">
+                    <div id="symbolDropdown" class="dropdown"></div>
+                </div>
+                <div class="control-group">
+                    <label>Expiry Date</label>
+                    <input type="text" id="expiryInput" value="20-10-2025" placeholder="Search expiry..." autocomplete="off">
+                    <div id="expiryDropdown" class="dropdown"></div>
+                </div>
+                <div class="control-group">
+                    <label>Strike Count</label>
+                    <input type="text" id="strikeInput" value="10" placeholder="Strike count..." autocomplete="off" readonly>
+                    <div id="strikeDropdown" class="dropdown"></div>
+                </div>
+            </div>
+        </div>
+        <div class="market-info">
+            <div class="symbol-info">
+                <div class="symbol-name" id="currentSymbol">NIFTY50</div>
+                <div class="ltp-info">
+                    <span style="color: #8b949e; font-size: 14px;">LTP:</span>
+                    <span class="ltp-value" id="symbolLTP">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="table-container" id="optionchain-container">
+        <table>
+            <thead>
+                <tr>
+                    <th colspan="7" class="calls-header">CALLS</th>
+                    <th class="strike-header">STRIKE</th>
+                    <th colspan="7" class="puts-header">PUTS</th>
+                </tr>
+                <tr>
+                    <th class="calls-header">OI CH</th>
+                    <th class="calls-header">OI</th>
+                    <th class="calls-header">%MCOI</th>
+                    <th class="calls-header">VOLUME</th>
+                    <th class="calls-header">%MCV</th>
+                    <th class="calls-header">LTP CH</th>
+                    <th class="calls-header">LTP</th>
+                    <th class="strike-header">PRICE</th>
+                    <th class="puts-header">LTP</th>
+                    <th class="puts-header">LTP CH</th>
+                    <th class="puts-header">%MPV</th>
+                    <th class="puts-header">VOLUME</th>
+                    <th class="puts-header">%MPOI</th>
+                    <th class="puts-header">OI</th>
+                    <th class="puts-header">OI CH</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="{% static 'dashboard/optionchain.js' %}"></script>
+    <script>
+        let allSymbols = [];
+        let allExpiries = [];
+        let selectedIndex = -1;
+        let filteredSymbols = [];
+        let filteredExpiries = [];
+        let expirySelectedIndex = -1;
+        
+        let symbolData = {};
+        let previousSymbol = '';
+        let previousExpiry = '';
+        let activeSymbol = 'NSE:NIFTY50-INDEX';
+        let activeExpiry = '';
+        let activeStrikeCount = 10;
+        let strikeOptions = [8, 10, 15, 20];
+        let lastLTP = null;
+        let lastDataLength = 0;
+        let currentRequestId = 0;
+        let updateTimeout = null;
+        
+        function filterValidExpiries(expiries) {
+            const today = new Date();
+            return expiries.filter(expiry => {
+                const [day, month, year] = expiry.split('-');
+                const expiryDate = new Date(year, month - 1, day);
+                return expiryDate >= today;
+            });
+        }
+        
+        // Load symbols and expiries from JSON
+        fetch('/static/symbol.json?v=' + Date.now())
+            .then(response => response.json())
+            .then(data => {
+                symbolData = data.expiry_dates;
+                allSymbols = Object.keys(data.expiry_dates);
+                allExpiries = filterValidExpiries(data.expiry_dates['NSE:NIFTY50-INDEX'] || []);
+                document.getElementById('symbolInput').value = 'NSE:NIFTY50-INDEX';
+                document.getElementById('expiryInput').value = allExpiries[0] || '';
+                // Set initial active values
+                activeSymbol = 'NSE:NIFTY50-INDEX';
+                activeExpiry = allExpiries[0] || '';
+                // Load initial data
+                setTimeout(() => {
+                    updateData();
+                }, 500);
+            })
+            .catch(error => console.error('Error loading symbols:', error));
+        
+        function showExpiries(expiries) {
+            filteredExpiries = expiries;
+            expirySelectedIndex = -1;
+            const dropdown = document.getElementById('expiryDropdown');
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'block';
+            
+            expiries.forEach((expiry, index) => {
+                const div = document.createElement('div');
+                div.textContent = expiry;
+                div.style.padding = '8px';
+                div.style.cursor = 'pointer';
+                div.style.borderBottom = '1px solid #eee';
+                div.className = 'expiry-option';
+                div.onclick = () => {
+                    document.getElementById('expiryInput').value = expiry;
+                    dropdown.style.display = 'none';
+                    // Update active expiry IMMEDIATELY for data rendering
+                    activeExpiry = expiry;
+                    // Update immediately
+                    immediateUpdate();
+                };
+                dropdown.appendChild(div);
+            });
+        }
+        
+        function updateExpirySelection() {
+            const options = document.querySelectorAll('.expiry-option');
+            options.forEach((option, index) => {
+                if (index === expirySelectedIndex) {
+                    option.style.backgroundColor = '#007bff';
+                    option.style.color = 'white';
+                    option.scrollIntoView({ block: 'nearest' });
+                } else {
+                    option.style.backgroundColor = 'white';
+                    option.style.color = 'black';
+                }
+            });
+        }
+        
+        function showSymbols(symbols) {
+            filteredSymbols = symbols;
+            selectedIndex = -1;
+            const dropdown = document.getElementById('symbolDropdown');
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'block';
+            
+            symbols.forEach((symbol, index) => {
+                const div = document.createElement('div');
+                div.textContent = symbol;
+                div.style.padding = '8px';
+                div.style.cursor = 'pointer';
+                div.style.borderBottom = '1px solid #eee';
+                div.className = 'symbol-option';
+                div.onclick = () => {
+                    document.getElementById('symbolInput').value = symbol;
+                    dropdown.style.display = 'none';
+                    // Update expiry dates for selected symbol with valid dates only
+                    allExpiries = filterValidExpiries(symbolData[symbol] || []);
+                    const newExpiry = allExpiries[0] || '';
+                    document.getElementById('expiryInput').value = newExpiry;
+                    // Update active values IMMEDIATELY for data rendering
+                    activeSymbol = symbol;
+                    activeExpiry = newExpiry;
+                    // Update symbol display
+                    document.getElementById('currentSymbol').textContent = symbol.replace('NSE:', '').replace('-INDEX', '');
+                    // Update immediately
+                    immediateUpdate();
+                };
+                dropdown.appendChild(div);
+            });
+        }
+        
+        function updateSelection() {
+            const options = document.querySelectorAll('.symbol-option');
+            options.forEach((option, index) => {
+                if (index === selectedIndex) {
+                    option.style.backgroundColor = '#007bff';
+                    option.style.color = 'white';
+                    option.scrollIntoView({ block: 'nearest' });
+                } else {
+                    option.style.backgroundColor = 'white';
+                    option.style.color = 'black';
+                }
+            });
+        }
+        
+
+        
+        // Store previous values and show indices symbols on focus
+        document.getElementById('symbolInput').addEventListener('focus', function() {
+            if (this.value) {
+                previousSymbol = this.value;
+                previousExpiry = document.getElementById('expiryInput').value;
+            }
+            this.value = '';
+            const indicesSymbols = allSymbols.filter(symbol => 
+                symbol.includes('-INDEX')
+            );
+            showSymbols(indicesSymbols);
+        });
+        
+        // Filter symbols on input
+        document.getElementById('symbolInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filtered = allSymbols.filter(symbol => 
+                symbol.toLowerCase().includes(searchTerm)
+            );
+            showSymbols(filtered);
+        });
+        
+        // Handle keyboard navigation
+        document.getElementById('symbolInput').addEventListener('keydown', function(e) {
+            const dropdown = document.getElementById('symbolDropdown');
+            if (dropdown.style.display === 'none') return;
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, filteredSymbols.length - 1);
+                updateSelection();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && selectedIndex < filteredSymbols.length) {
+                    const selectedSymbol = filteredSymbols[selectedIndex];
+                    this.value = selectedSymbol;
+                    dropdown.style.display = 'none';
+                    // Update expiry dates for selected symbol with valid dates only
+                    allExpiries = filterValidExpiries(symbolData[selectedSymbol] || []);
+                    const newExpiry = allExpiries[0] || '';
+                    document.getElementById('expiryInput').value = newExpiry;
+                    // Update active values IMMEDIATELY for data rendering
+                    activeSymbol = selectedSymbol;
+                    activeExpiry = newExpiry;
+                    // Update symbol display
+                    document.getElementById('currentSymbol').textContent = selectedSymbol.replace('NSE:', '').replace('-INDEX', '');
+                    // Update immediately
+                    immediateUpdate();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        });
+        
+        // Expiry field events
+        
+        document.getElementById('expiryInput').addEventListener('focus', function() {
+            showExpiries(allExpiries);
+        });
+        
+        document.getElementById('expiryInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filtered = allExpiries.filter(expiry => 
+                expiry.toLowerCase().includes(searchTerm)
+            );
+            showExpiries(filtered);
+        });
+        
+        document.getElementById('expiryInput').addEventListener('keydown', function(e) {
+            const dropdown = document.getElementById('expiryDropdown');
+            if (dropdown.style.display === 'none') return;
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                expirySelectedIndex = Math.min(expirySelectedIndex + 1, filteredExpiries.length - 1);
+                updateExpirySelection();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                expirySelectedIndex = Math.max(expirySelectedIndex - 1, -1);
+                updateExpirySelection();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (expirySelectedIndex >= 0 && expirySelectedIndex < filteredExpiries.length) {
+                    const selectedExpiry = filteredExpiries[expirySelectedIndex];
+                    this.value = selectedExpiry;
+                    dropdown.style.display = 'none';
+                    // Update active expiry IMMEDIATELY for data rendering
+                    activeExpiry = selectedExpiry;
+                    // Update immediately
+                    immediateUpdate();
+                }
+            } else if (e.key === 'Escape') {
+                dropdown.style.display = 'none';
+            }
+        });
+        
+        // Hide dropdowns when clicking outside and restore previous values if no selection made
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('#symbolInput') && !e.target.closest('#symbolDropdown')) {
+                const symbolInput = document.getElementById('symbolInput');
+                if (symbolInput.value === '' && previousSymbol) {
+                    symbolInput.value = previousSymbol;
+                    document.getElementById('expiryInput').value = previousExpiry;
+                }
+                document.getElementById('symbolDropdown').style.display = 'none';
+            }
+            if (!e.target.closest('#expiryInput') && !e.target.closest('#expiryDropdown')) {
+                document.getElementById('expiryDropdown').style.display = 'none';
+            }
+            if (!e.target.closest('#strikeInput') && !e.target.closest('#strikeDropdown')) {
+                document.getElementById('strikeDropdown').style.display = 'none';
+            }
+        });
+        
+        function showStrikes() {
+            const dropdown = document.getElementById('strikeDropdown');
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'block';
+            
+            strikeOptions.forEach(strike => {
+                const div = document.createElement('div');
+                div.textContent = strike;
+                div.style.padding = '8px';
+                div.style.cursor = 'pointer';
+                div.style.borderBottom = '1px solid #eee';
+                div.onclick = () => {
+                    document.getElementById('strikeInput').value = strike;
+                    dropdown.style.display = 'none';
+                    // Update active strike count IMMEDIATELY
+                    activeStrikeCount = strike;
+                    // Update immediately
+                    immediateUpdate();
+                };
+                dropdown.appendChild(div);
+            });
+        }
+        
+        document.getElementById('strikeInput').addEventListener('focus', function() {
+            showStrikes();
+        });
+        
+        function immediateUpdate() {
+            // Show loading state immediately
+            showLoadingState();
+            currentRequestId++;
+            updateData();
+        }
+        
+        function showLoadingState() {
+            const tbody = document.querySelector('#optionchain-container tbody');
+            tbody.innerHTML = '<tr><td colspan="15" style="text-align: center; padding: 40px; color: #8b949e; font-size: 18px; font-weight: 600;">Loading...</td></tr>';
+        }
+        
+        function updateData() {
+            // Always use active symbol, expiry and strike count for data rendering
+            if (!activeSymbol || !activeExpiry) return;
+            
+            const requestId = ++currentRequestId;
+            const requestSymbol = activeSymbol;
+            const requestExpiry = activeExpiry;
+            const requestStrike = activeStrikeCount;
+            
+            // Add timeout for faster response
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            
+            fetch(`{% url "get_live_data" %}?symbol=${activeSymbol}&expiry=${activeExpiry}&strikecount=${activeStrikeCount}`, {
+                signal: controller.signal
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    // Only update if this is the latest request
+                    if (requestId !== currentRequestId) return;
+                    // Double check symbol/expiry/strike haven't changed
+                    if (requestSymbol !== activeSymbol || requestExpiry !== activeExpiry || requestStrike !== activeStrikeCount) return;
+                    const tbody = document.querySelector('#optionchain-container tbody');
+                    tbody.innerHTML = '';
+                    
+                    // Update LTP in header
+                    if (result.ltp) {
+                        document.getElementById('symbolLTP').textContent = result.ltp;
+                    } else {
+                        document.getElementById('symbolLTP').textContent = '0';
+                    }
+                    
+                    if (!result.data || result.data.length === 0) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = '<td colspan="15" style="text-align: center; padding: 20px;">No data available for selected symbol and expiry</td>';
+                        tbody.appendChild(tr);
+                        return;
+                    }
+                    
+                    result.data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="call-data call-oich">${formatIndian(row.CALL_OICH)}</td>
+                            <td class="call-data call-oi">${formatIndian(row.CALL_OI)}</td>
+                            <td class="call-data call-pmcoi">${row.CALL_PMCOI}%</td>
+                            <td class="call-data call-volume">${formatIndian(row.CALL_VOLUME)}</td>
+                            <td class="call-data call-pmcv">${row.CALL_PMCV}%</td>
+                            <td class="call-data ${row.CALL_LTPCH >= 0 ? 'positive' : 'negative'}">${row.CALL_LTPCH}</td>
+                            <td class="call-data" style="font-weight: 600;">${row.CALL_LTP}</td>
+                            <td class="strike-price">${row.STRIKE_PRICE}</td>
+                            <td class="put-data" style="font-weight: 600;">${row.PUT_LTP}</td>
+                            <td class="put-data ${row.PUT_LTPCH >= 0 ? 'positive' : 'negative'}">${row.PUT_LTPCH}</td>
+                            <td class="put-data put-pmpv">${row.PUT_PMPV}%</td>
+                            <td class="put-data put-volume">${formatIndian(row.PUT_VOLUME)}</td>
+                            <td class="put-data put-pmpoi">${row.PUT_PMPOI}%</td>
+                            <td class="put-data put-oi">${formatIndian(row.PUT_OI)}</td>
+                            <td class="put-data put-oich">${formatIndian(row.PUT_OICH)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    
+                    // Add LTP line after table is rebuilt
+                    if (result.ltp) {
+                        addLTPLine(result.ltp, result.data);
+                    }
+                    
+                    // Highlight maximum values
+                    highlightMaxValues();
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    if (error.name === 'AbortError') {
+                        console.log('Request timeout - retrying...');
+                        // Retry after timeout
+                        setTimeout(() => {
+                            if (requestId === currentRequestId) {
+                                updateData();
+                            }
+                        }, 1000);
+                    } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                        console.log('Network error - continuing with next update');
+                        // Don't show error, just continue with next update cycle
+                    } else {
+                        console.error('Error fetching data:', error);
+                        const tbody = document.querySelector('#optionchain-container tbody');
+                        if (tbody.children.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="15" style="text-align: center; padding: 20px; color: #ef4444;">Reconnecting...</td></tr>';
+                        }
+                    }
+                })
+                .finally(() => {
+                    clearTimeout(timeoutId);
+                });
+        }
+        
+        function formatIndian(value) {
+            const num = parseInt(value);
+            return num.toLocaleString('en-IN');
+        }
+        
+        let currentLTPRowIndex = -1;
+        
+        function addLTPLine(ltp, data) {
+            // Remove existing LTP line rows
+            document.querySelectorAll('.ltp-line-row').forEach(row => {
+                row.remove();
+            });
+            
+            const tbody = document.querySelector('#optionchain-container tbody');
+            const rows = document.querySelectorAll('#optionchain-container tbody tr');
+            const ltpValue = parseFloat(ltp);
+            
+            // Find position between two strikes where LTP lies
+            for (let i = 0; i < data.length - 1; i++) {
+                const currentStrike = parseFloat(data[i].STRIKE_PRICE);
+                const nextStrike = parseFloat(data[i + 1].STRIKE_PRICE);
+                
+                if (ltpValue > currentStrike && ltpValue < nextStrike) {
+                    // Create LTP line row
+                    const ltpRow = document.createElement('tr');
+                    ltpRow.className = 'ltp-line-row';
+                    ltpRow.innerHTML = `<td colspan="15" style="padding: 0; position: relative; height: 4px; background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626); border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"><div style="position: absolute; left: 50%; top: -9px; transform: translateX(-50%); background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #b91c1c 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px;">${ltp}</div></td>`;
+                    
+                    // Insert after current row
+                    if (rows[i] && rows[i].nextSibling) {
+                        tbody.insertBefore(ltpRow, rows[i].nextSibling);
+                    } else if (rows[i]) {
+                        rows[i].insertAdjacentElement('afterend', ltpRow);
+                    }
+                    break;
+                }
+            }
+        }
+        
+        function highlightMaxValues() {
+            const columns = ['call-oich', 'call-oi', 'call-pmcoi', 'call-volume', 'call-pmcv', 'put-oich', 'put-oi', 'put-pmpoi', 'put-volume', 'put-pmpv'];
+            
+            columns.forEach(column => {
+                const cells = document.querySelectorAll(`.${column}`);
+                let maxValue = -Infinity;
+                let maxCell = null;
+                
+                cells.forEach(cell => {
+                    const value = parseFloat(cell.textContent.replace(/[,%]/g, ''));
+                    if (value > maxValue) {
+                        maxValue = value;
+                        maxCell = cell;
+                    }
+                });
+                
+                // Remove previous highlights
+                cells.forEach(cell => cell.classList.remove('highlight-max'));
+                
+                // Highlight maximum value
+                if (maxCell) {
+                    maxCell.classList.add('highlight-max');
+                }
+            });
+        }
+        
+        function updateSymbolExpiry() {
+            updateData();
+        }
+        
+
+        
+        // Start periodic updates after initial load
+        setInterval(() => {
+            if (activeSymbol && activeExpiry) {
+                updateData();
+            }
+        }, 2000);
+    </script>
+{% endblock %}
