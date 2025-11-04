@@ -30,6 +30,62 @@ body {
     font-size: 14px;
 }
 
+.control-group {
+    position: relative;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: scroll;
+    display: none;
+    z-index: 1000;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    scrollbar-width: thin;
+    scrollbar-color: #3b82f6 #6b7280;
+}
+
+.dropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dropdown::-webkit-scrollbar-track {
+    background: #6b7280;
+    border-radius: 4px;
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+    background: #999;
+    border-radius: 4px;
+}
+
+.dropdown::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+.dropdown div {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.dropdown div:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown div:last-child {
+    border-bottom: none;
+}
+
 .table-container {
     overflow-x: auto;
     background: white;
