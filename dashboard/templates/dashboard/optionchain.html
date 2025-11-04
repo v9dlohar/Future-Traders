@@ -30,7 +30,7 @@
         .ltp-info { display: flex; align-items: center; gap: 8px; }
         .ltp-value { font-size: 18px; font-weight: 800; color: #10b981; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .table-container { background: #0d1117; margin: 0; overflow-x: auto; max-height: calc(100vh - 200px); overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
         th { background: #161b22; color: #8b949e; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #2a3441; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; }
         td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #21262d; font-size: 12px; transition: background 0.2s; }
         tbody tr:hover { background: #161b22; }
@@ -137,6 +137,26 @@
                     <input type="text" id="strikeInput" value="10" placeholder="Strike count..." autocomplete="off" readonly>
                     <div id="strikeDropdown" class="dropdown"></div>
                 </div>
+                <div style="margin-left: auto; background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.1)); border: 2px solid rgba(59, 130, 246, 0.4); border-radius: 12px; padding: 12px 20px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);">
+                    <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1e40af; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">Greeks</label>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
+                            <input type="checkbox" id="ivCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> IV
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
+                            <input type="checkbox" id="deltaCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Delta
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
+                            <input type="checkbox" id="gammaCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Gamma
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
+                            <input type="checkbox" id="thetaCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Theta
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
+                            <input type="checkbox" id="vegaCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Vega
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="market-info">
@@ -147,15 +167,19 @@
                     <span class="ltp-value" id="symbolLTP">0</span>
                     <span class="change-info" id="changeInfo" style="margin-left: 12px; font-size: 14px; font-weight: 600;"></span>
                 </div>
+                <div class="ltp-info" style="margin-left: 24px;">
+                    <span style="color: #8b949e; font-size: 14px; font-weight: bold;">PCR:</span>
+                    <span class="ltp-value" id="pcrValue" style="color: #3b82f6;">0.00</span>
+                </div>
             </div>
         </div>
         <div class="table-container" id="optionchain-container">
         <table>
             <thead>
                 <tr>
-                    <th colspan="7" class="calls-header">CALLS</th>
+                    <th colspan="12" class="calls-header">CALLS</th>
                     <th class="strike-header">STRIKE</th>
-                    <th colspan="7" class="puts-header">PUTS</th>
+                    <th colspan="12" class="puts-header">PUTS</th>
                 </tr>
                 <tr>
                     <th class="calls-header">OI CH</th>
@@ -165,9 +189,19 @@
                     <th class="calls-header">%MCV</th>
                     <th class="calls-header">LTP CH</th>
                     <th class="calls-header">LTP</th>
+                    <th class="calls-header">IV</th>
+                    <th class="calls-header">DELTA</th>
+                    <th class="calls-header">GAMMA</th>
+                    <th class="calls-header">THETA</th>
+                    <th class="calls-header">VEGA</th>
                     <th class="strike-header">PRICE</th>
                     <th class="puts-header">LTP</th>
                     <th class="puts-header">LTP CH</th>
+                    <th class="puts-header">IV</th>
+                    <th class="puts-header">DELTA</th>
+                    <th class="puts-header">GAMMA</th>
+                    <th class="puts-header">THETA</th>
+                    <th class="puts-header">VEGA</th>
                     <th class="puts-header">%MPV</th>
                     <th class="puts-header">VOLUME</th>
                     <th class="puts-header">%MPOI</th>
@@ -184,35 +218,153 @@
 
     <script src="{% static 'dashboard/optionchain.js' %}"></script>
     <script>
-        let allSymbols = [];
-        let allExpiries = [];
-        let selectedIndex = -1;
-        let filteredSymbols = [];
-        let filteredExpiries = [];
-        let expirySelectedIndex = -1;
+        // ========== GLOBAL VARIABLES ==========
+        // Symbol and expiry data
+        let allSymbols = [];              // All available symbols from JSON
+        let allExpiries = [];             // All valid expiries for selected symbol
+        let symbolData = {};              // Complete symbol-expiry mapping from JSON
         
-        let symbolData = {};
-        let previousSymbol = '';
-        let previousExpiry = '';
-        let activeSymbol = 'NSE:NIFTY50-INDEX';
-        let activeExpiry = '';
-        let activeStrikeCount = 10;
-        let strikeOptions = [8, 10, 15, 20];
-        let lastLTP = null;
-        let lastDataLength = 0;
-        let currentRequestId = 0;
-        let updateTimeout = null;
+        // Dropdown navigation state
+        let selectedIndex = -1;           // Currently selected index in symbol dropdown
+        let filteredSymbols = [];         // Filtered symbols based on search
+        let expirySelectedIndex = -1;     // Currently selected index in expiry dropdown
+        let filteredExpiries = [];        // Filtered expiries based on search
         
+        // Active selection state
+        let previousSymbol = '';          // Store previous symbol when input is cleared
+        let previousExpiry = '';          // Store previous expiry when input is cleared
+        let activeSymbol = 'NSE:NIFTY50-INDEX';  // Currently active symbol for data fetch
+        let activeExpiry = '';            // Currently active expiry for data fetch
+        let activeStrikeCount = 10;       // Currently active strike count
+        let strikeOptions = [8, 10, 15, 20];  // Available strike count options
+        
+        // Greeks visibility state - tracks which Greek columns are visible
+        let selectedGreeks = {
+            'IV': true,
+            'DELTA': true,
+            'GAMMA': true,
+            'THETA': true,
+            'VEGA': true
+        };
+        
+        // Request management
+        let currentRequestId = 0;         // Track latest request to prevent race conditions
+        
+        // ========== GREEKS CHECKBOX LISTENERS ==========
+        // Setup event listeners for Greeks visibility checkboxes
+        document.getElementById('ivCheck').addEventListener('change', function() {
+            selectedGreeks['IV'] = this.checked;
+            toggleGreeksColumns();  // Show/hide IV columns
+        });
+        document.getElementById('deltaCheck').addEventListener('change', function() {
+            selectedGreeks['DELTA'] = this.checked;
+            toggleGreeksColumns();  // Show/hide Delta columns
+        });
+        document.getElementById('gammaCheck').addEventListener('change', function() {
+            selectedGreeks['GAMMA'] = this.checked;
+            toggleGreeksColumns();  // Show/hide Gamma columns
+        });
+        document.getElementById('thetaCheck').addEventListener('change', function() {
+            selectedGreeks['THETA'] = this.checked;
+            toggleGreeksColumns();  // Show/hide Theta columns
+        });
+        document.getElementById('vegaCheck').addEventListener('change', function() {
+            selectedGreeks['VEGA'] = this.checked;
+            toggleGreeksColumns();  // Show/hide Vega columns
+        });
+        
+        // ========== GREEKS COLUMN VISIBILITY TOGGLE ==========
+        /**
+         * Show/hide Greeks columns based on checkbox selection
+         * Updates both column headers and data cells
+         * Adjusts colspan for CALLS and PUTS headers dynamically
+         */
+        function toggleGreeksColumns() {
+            const secondHeaderRow = document.querySelectorAll('thead tr')[1];
+            
+            // Map Greek names to their column indices in the table (0-indexed)
+            // Format: [CALL column index, PUT column index]
+            const greekColumns = {
+                'IV': [7, 15],      // Implied Volatility columns
+                'DELTA': [8, 16],   // Delta columns
+                'GAMMA': [9, 17],   // Gamma columns
+                'THETA': [10, 18],  // Theta columns
+                'VEGA': [11, 19]    // Vega columns
+            };
+            
+            // Map Greek names to their CSS class names for data cells
+            const greekClassMap = {
+                'IV': 'greek-iv',
+                'DELTA': 'greek-delta',
+                'GAMMA': 'greek-gamma',
+                'THETA': 'greek-theta',
+                'VEGA': 'greek-vega'
+            };
+            
+            // Count visible columns to update colspan
+            // Base: 7 columns (OI CH, OI, %MCOI, VOLUME, %MCV, LTP CH, LTP)
+            let visibleCallsCount = 7;
+            let visiblePutsCount = 7;
+            Object.keys(greekColumns).forEach(greek => {
+                if (selectedGreeks[greek]) {
+                    visibleCallsCount++;
+                    visiblePutsCount++;
+                }
+            });
+            
+            // Update colspan for CALLS and PUTS headers in first row
+            const firstHeaderRow = document.querySelectorAll('thead tr')[0];
+            if (firstHeaderRow) {
+                firstHeaderRow.children[0].setAttribute('colspan', visibleCallsCount);  // CALLS header
+                firstHeaderRow.children[2].setAttribute('colspan', visiblePutsCount);   // PUTS header
+            }
+            
+            // Show/hide columns based on checkbox selection
+            Object.keys(greekColumns).forEach(greek => {
+                const show = selectedGreeks[greek];
+                const className = greekClassMap[greek];
+                
+                // Hide/show column headers
+                greekColumns[greek].forEach(colIndex => {
+                    if (secondHeaderRow && secondHeaderRow.children[colIndex]) {
+                        secondHeaderRow.children[colIndex].style.display = show ? '' : 'none';
+                    }
+                });
+                
+                // Hide/show all data cells with matching class
+                document.querySelectorAll(`.${className}`).forEach(cell => {
+                    cell.style.display = show ? '' : 'none';
+                });
+            });
+        }
+        
+        // ========== UTILITY FUNCTIONS ==========
+        /**
+         * Filter out expired dates from expiry list
+         * @param {Array} expiries - Array of expiry dates in DD-MM-YYYY format
+         * @returns {Array} - Filtered array with only future dates
+         */
         function filterValidExpiries(expiries) {
             const today = new Date();
             return expiries.filter(expiry => {
                 const [day, month, year] = expiry.split('-');
                 const expiryDate = new Date(year, month - 1, day);
-                return expiryDate >= today;
+                return expiryDate >= today;  // Keep only future dates
             });
         }
         
-        // Load symbols and expiries from JSON
+        /**
+         * Format numbers in Indian numbering system (lakhs, crores)
+         * @param {number} value - Number to format
+         * @returns {string} - Formatted string (e.g., 1,23,456)
+         */
+        function formatIndian(value) {
+            const num = parseInt(value);
+            return num.toLocaleString('en-IN');
+        }
+        
+        // ========== INITIALIZATION ==========
+        // Load symbols and expiries from JSON file on page load
         fetch('{% static "symbol.json" %}?v=' + Date.now())
             .then(response => response.json())
             .then(data => {
@@ -231,6 +383,11 @@
             })
             .catch(error => console.error('Error loading symbols:', error));
         
+        // ========== EXPIRY DROPDOWN FUNCTIONS ==========
+        /**
+         * Display expiry dates in dropdown
+         * @param {Array} expiries - Array of expiry dates to display
+         */
         function showExpiries(expiries) {
             filteredExpiries = expiries;
             expirySelectedIndex = -1;
@@ -257,6 +414,9 @@
             });
         }
         
+        /**
+         * Update visual selection in expiry dropdown (keyboard navigation)
+         */
         function updateExpirySelection() {
             const options = document.querySelectorAll('.expiry-option');
             options.forEach((option, index) => {
@@ -271,6 +431,11 @@
             });
         }
         
+        // ========== SYMBOL DROPDOWN FUNCTIONS ==========
+        /**
+         * Display symbols in dropdown
+         * @param {Array} symbols - Array of symbols to display
+         */
         function showSymbols(symbols) {
             filteredSymbols = symbols;
             selectedIndex = -1;
@@ -304,6 +469,9 @@
             });
         }
         
+        /**
+         * Update visual selection in symbol dropdown (keyboard navigation)
+         */
         function updateSelection() {
             const options = document.querySelectorAll('.symbol-option');
             options.forEach((option, index) => {
@@ -320,6 +488,7 @@
         
 
         
+        // ========== SYMBOL INPUT EVENT LISTENERS ==========
         // Store previous values and show ALL symbols on focus
         document.getElementById('symbolInput').addEventListener('focus', function() {
             if (this.value) {
@@ -376,7 +545,7 @@
             }
         });
         
-        // Expiry field events
+        // ========== EXPIRY INPUT EVENT LISTENERS ==========
         
         document.getElementById('expiryInput').addEventListener('focus', function() {
             showExpiries(allExpiries);
@@ -418,6 +587,7 @@
             }
         });
         
+        // ========== GLOBAL CLICK HANDLER ==========
         // Hide dropdowns when clicking outside and restore previous values if no selection made
         document.addEventListener('click', function(e) {
             if (!e.target.closest('#symbolInput') && !e.target.closest('#symbolDropdown')) {
@@ -436,6 +606,10 @@
             }
         });
         
+        // ========== STRIKE COUNT DROPDOWN ==========
+        /**
+         * Display strike count options in dropdown
+         */
         function showStrikes() {
             const dropdown = document.getElementById('strikeDropdown');
             dropdown.innerHTML = '';
@@ -463,20 +637,31 @@
             showStrikes();
         });
         
+        // ========== DATA UPDATE FUNCTIONS ==========
+        /**
+         * Trigger immediate data update (called when user changes selection)
+         */
         function immediateUpdate() {
-            // Show loading state immediately
             showLoadingState();
-            currentRequestId++;
+            currentRequestId++;  // Increment to cancel any pending requests
             updateData();
         }
         
+        /**
+         * Show loading state in table
+         */
         function showLoadingState() {
             const tbody = document.querySelector('#optionchain-container tbody');
-            tbody.innerHTML = '<tr><td colspan="15" style="text-align: center; padding: 40px; color: #8b949e; font-size: 18px; font-weight: 600;">Loading...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="25" style="text-align: center; padding: 40px; color: #8b949e; font-size: 18px; font-weight: 600;">Loading...</td></tr>';
         }
         
+        /**
+         * Fetch option chain data from server and update table
+         * Handles race conditions using requestId
+         * Updates LTP, PCR, and highlights max values
+         */
         function updateData() {
-            // Always use active symbol, expiry and strike count for data rendering
+            // Validate required parameters
             if (!activeSymbol || !activeExpiry) return;
             
             const requestId = ++currentRequestId;
@@ -527,13 +712,16 @@
                     
                     if (!result.data || result.data.length === 0) {
                         const tr = document.createElement('tr');
-                        tr.innerHTML = '<td colspan="15" style="text-align: center; padding: 20px;">No data available for selected symbol and expiry</td>';
+                        tr.innerHTML = '<td colspan="25" style="text-align: center; padding: 20px;">No data available for selected symbol and expiry</td>';
                         tbody.appendChild(tr);
                         return;
                     }
                     
+                    // Populate table rows with option chain data
                     result.data.forEach(row => {
                         const tr = document.createElement('tr');
+                        // Build table row with all columns
+                        // Greek columns have special classes (greek-iv, greek-delta, etc.) for visibility toggle
                         tr.innerHTML = `
                             <td class="call-data call-oich">${formatIndian(row.CALL_OICH)}</td>
                             <td class="call-data call-oi">${formatIndian(row.CALL_OI)}</td>
@@ -542,9 +730,19 @@
                             <td class="call-data call-pmcv">${row.CALL_PMCV}%</td>
                             <td class="call-data ${row.CALL_LTPCH >= 0 ? 'positive' : 'negative'}">${row.CALL_LTPCH}</td>
                             <td class="call-data" style="font-weight: 600;">${row.CALL_LTP}</td>
+                            <td class="call-data greek-iv">${row.CALL_IV}%</td>
+                            <td class="call-data greek-delta">${row.CALL_DELTA}</td>
+                            <td class="call-data greek-gamma">${row.CALL_GAMMA}</td>
+                            <td class="call-data greek-theta">${row.CALL_THETA}</td>
+                            <td class="call-data greek-vega">${row.CALL_VEGA}</td>
                             <td class="strike-price">${row.STRIKE_PRICE}</td>
                             <td class="put-data" style="font-weight: 600;">${row.PUT_LTP}</td>
                             <td class="put-data ${row.PUT_LTPCH >= 0 ? 'positive' : 'negative'}">${row.PUT_LTPCH}</td>
+                            <td class="put-data greek-iv">${row.PUT_IV}%</td>
+                            <td class="put-data greek-delta">${row.PUT_DELTA}</td>
+                            <td class="put-data greek-gamma">${row.PUT_GAMMA}</td>
+                            <td class="put-data greek-theta">${row.PUT_THETA}</td>
+                            <td class="put-data greek-vega">${row.PUT_VEGA}</td>
                             <td class="put-data put-pmpv">${row.PUT_PMPV}%</td>
                             <td class="put-data put-volume">${formatIndian(row.PUT_VOLUME)}</td>
                             <td class="put-data put-pmpoi">${row.PUT_PMPOI}%</td>
@@ -554,6 +752,9 @@
                         tbody.appendChild(tr);
                     });
                     
+                    // Apply Greeks column visibility based on checkbox state
+                    toggleGreeksColumns();
+                    
                     // Add LTP line after table is rebuilt
                     if (result.quote_data && result.quote_data.ltp) {
                         addLTPLine(result.quote_data.ltp, result.data);
@@ -561,6 +762,13 @@
                     
                     // Highlight maximum values
                     highlightMaxValues();
+                    
+                    // Update PCR
+                    if (result.pcr !== undefined) {
+                        const pcrValue = document.getElementById('pcrValue');
+                        pcrValue.textContent = result.pcr.toFixed(2);
+                        pcrValue.style.color = result.pcr > 1 ? '#10b981' : result.pcr < 1 ? '#ef4444' : '#3b82f6';
+                    }
                 })
                 .catch(error => {
                     clearTimeout(timeoutId);
@@ -579,7 +787,7 @@
                         console.error('Error fetching data:', error);
                         const tbody = document.querySelector('#optionchain-container tbody');
                         if (tbody.children.length === 0) {
-                            tbody.innerHTML = '<tr><td colspan="15" style="text-align: center; padding: 20px; color: #ef4444;">Reconnecting...</td></tr>';
+                            tbody.innerHTML = '<tr><td colspan="25" style="text-align: center; padding: 20px; color: #ef4444;">Reconnecting...</td></tr>';
                         }
                     }
                 })
@@ -588,13 +796,12 @@
                 });
         }
         
-        function formatIndian(value) {
-            const num = parseInt(value);
-            return num.toLocaleString('en-IN');
-        }
-        
-        let currentLTPRowIndex = -1;
-        
+        // ========== LTP LINE DISPLAY ==========
+        /**
+         * Add visual LTP line between strike prices where current LTP falls
+         * @param {number} ltp - Last Traded Price
+         * @param {Array} data - Option chain data array
+         */
         function addLTPLine(ltp, data) {
             // Remove existing LTP line rows
             document.querySelectorAll('.ltp-line-row').forEach(row => {
@@ -614,7 +821,7 @@
                     // Create LTP line row
                     const ltpRow = document.createElement('tr');
                     ltpRow.className = 'ltp-line-row';
-                    ltpRow.innerHTML = `<td colspan="15" style="padding: 0; position: relative; height: 4px; background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626); border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"><div style="position: absolute; left: 50%; top: -9px; transform: translateX(-50%); background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #b91c1c 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px;">${ltp}</div></td>`;
+                    ltpRow.innerHTML = `<td colspan="25" style="padding: 0; position: relative; height: 4px; background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626); border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"><div style="position: absolute; left: 50%; top: -9px; transform: translateX(-50%); background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #b91c1c 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px;">${ltp}</div></td>`;
                     
                     // Insert after current row
                     if (rows[i] && rows[i].nextSibling) {
@@ -627,6 +834,11 @@
             }
         }
         
+        // ========== HIGHLIGHT MAX VALUES ==========
+        /**
+         * Highlight cells with maximum values in each column
+         * Applies to OI, Volume, and percentage columns
+         */
         function highlightMaxValues() {
             const columns = ['call-oich', 'call-oi', 'call-pmcoi', 'call-volume', 'call-pmcv', 'put-oich', 'put-oi', 'put-pmpoi', 'put-volume', 'put-pmpv'];
             
@@ -653,13 +865,8 @@
             });
         }
         
-        function updateSymbolExpiry() {
-            updateData();
-        }
-        
-
-        
-        // Start periodic updates after initial load
+        // ========== PERIODIC DATA REFRESH ==========
+        // Auto-refresh option chain data every 2 seconds
         setInterval(() => {
             if (activeSymbol && activeExpiry) {
                 updateData();
