@@ -141,19 +141,19 @@
                     <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1e40af; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.1);">Greeks</label>
                     <div style="display: flex; gap: 12px; align-items: center;">
                         <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
-                            <input type="checkbox" id="ivCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> IV
+                            <input type="checkbox" id="ivCheck" style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> IV
                         </label>
                         <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
                             <input type="checkbox" id="deltaCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Delta
                         </label>
                         <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
-                            <input type="checkbox" id="gammaCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Gamma
+                            <input type="checkbox" id="gammaCheck" style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Gamma
                         </label>
                         <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
-                            <input type="checkbox" id="thetaCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Theta
+                            <input type="checkbox" id="thetaCheck" style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Theta
                         </label>
                         <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #1f2937; font-size: 13px; margin: 0; font-weight: 600; transition: all 0.2s; padding: 4px 8px; border-radius: 6px;">
-                            <input type="checkbox" id="vegaCheck" checked style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Vega
+                            <input type="checkbox" id="vegaCheck" style="cursor: pointer; width: 17px; height: 17px; accent-color: #3b82f6;"> Vega
                         </label>
                     </div>
                 </div>
@@ -188,20 +188,20 @@
                     <th class="calls-header">VOLUME</th>
                     <th class="calls-header">%MCV</th>
                     <th class="calls-header">LTP CH</th>
-                    <th class="calls-header">LTP</th>
                     <th class="calls-header">IV</th>
-                    <th class="calls-header">DELTA</th>
                     <th class="calls-header">GAMMA</th>
                     <th class="calls-header">THETA</th>
                     <th class="calls-header">VEGA</th>
+                    <th class="calls-header">DELTA</th>
+                    <th class="calls-header">LTP</th>
                     <th class="strike-header">PRICE</th>
                     <th class="puts-header">LTP</th>
-                    <th class="puts-header">LTP CH</th>
-                    <th class="puts-header">IV</th>
                     <th class="puts-header">DELTA</th>
-                    <th class="puts-header">GAMMA</th>
-                    <th class="puts-header">THETA</th>
                     <th class="puts-header">VEGA</th>
+                    <th class="puts-header">THETA</th>
+                    <th class="puts-header">GAMMA</th>
+                    <th class="puts-header">IV</th>
+                    <th class="puts-header">LTP CH</th>
                     <th class="puts-header">%MPV</th>
                     <th class="puts-header">VOLUME</th>
                     <th class="puts-header">%MPOI</th>
@@ -239,12 +239,13 @@
         let strikeOptions = [8, 10, 15, 20];  // Available strike count options
         
         // Greeks visibility state - tracks which Greek columns are visible
+        // By default only Delta is checked
         let selectedGreeks = {
-            'IV': true,
+            'IV': false,
             'DELTA': true,
-            'GAMMA': true,
-            'THETA': true,
-            'VEGA': true
+            'GAMMA': false,
+            'THETA': false,
+            'VEGA': false
         };
         
         // Request management
@@ -284,12 +285,14 @@
             
             // Map Greek names to their column indices in the table (0-indexed)
             // Format: [CALL column index, PUT column index]
+            // CALL: LTP CH, IV, GAMMA, THETA, VEGA, DELTA, LTP
+            // PUT: LTP, DELTA, VEGA, THETA, GAMMA, IV, LTP CH
             const greekColumns = {
-                'IV': [7, 15],      // Implied Volatility columns
-                'DELTA': [8, 16],   // Delta columns
-                'GAMMA': [9, 17],   // Gamma columns
-                'THETA': [10, 18],  // Theta columns
-                'VEGA': [11, 19]    // Vega columns
+                'IV': [6, 18],      // Implied Volatility columns
+                'GAMMA': [7, 17],   // Gamma columns
+                'THETA': [8, 16],   // Theta columns
+                'VEGA': [9, 15],    // Vega columns
+                'DELTA': [10, 14]   // Delta columns
             };
             
             // Map Greek names to their CSS class names for data cells
@@ -729,20 +732,20 @@
                             <td class="call-data call-volume">${formatIndian(row.CALL_VOLUME)}</td>
                             <td class="call-data call-pmcv">${row.CALL_PMCV}%</td>
                             <td class="call-data ${row.CALL_LTPCH >= 0 ? 'positive' : 'negative'}">${row.CALL_LTPCH}</td>
-                            <td class="call-data" style="font-weight: 600;">${row.CALL_LTP}</td>
                             <td class="call-data greek-iv">${row.CALL_IV}%</td>
-                            <td class="call-data greek-delta">${row.CALL_DELTA}</td>
                             <td class="call-data greek-gamma">${row.CALL_GAMMA}</td>
                             <td class="call-data greek-theta">${row.CALL_THETA}</td>
                             <td class="call-data greek-vega">${row.CALL_VEGA}</td>
+                            <td class="call-data greek-delta">${row.CALL_DELTA}</td>
+                            <td class="call-data" style="font-weight: 600;">${row.CALL_LTP}</td>
                             <td class="strike-price">${row.STRIKE_PRICE}</td>
                             <td class="put-data" style="font-weight: 600;">${row.PUT_LTP}</td>
-                            <td class="put-data ${row.PUT_LTPCH >= 0 ? 'positive' : 'negative'}">${row.PUT_LTPCH}</td>
-                            <td class="put-data greek-iv">${row.PUT_IV}%</td>
                             <td class="put-data greek-delta">${row.PUT_DELTA}</td>
-                            <td class="put-data greek-gamma">${row.PUT_GAMMA}</td>
-                            <td class="put-data greek-theta">${row.PUT_THETA}</td>
                             <td class="put-data greek-vega">${row.PUT_VEGA}</td>
+                            <td class="put-data greek-theta">${row.PUT_THETA}</td>
+                            <td class="put-data greek-gamma">${row.PUT_GAMMA}</td>
+                            <td class="put-data greek-iv">${row.PUT_IV}%</td>
+                            <td class="put-data ${row.PUT_LTPCH >= 0 ? 'positive' : 'negative'}">${row.PUT_LTPCH}</td>
                             <td class="put-data put-pmpv">${row.PUT_PMPV}%</td>
                             <td class="put-data put-volume">${formatIndian(row.PUT_VOLUME)}</td>
                             <td class="put-data put-pmpoi">${row.PUT_PMPOI}%</td>
