@@ -123,6 +123,118 @@
         color: #6c757d; 
         font-size: 14px; 
     }
+    
+    .pricing-offer {
+        margin-top: 30px;
+        padding: 25px;
+        background: linear-gradient(135deg, #ff6b35, #f7931e, #ff6b35);
+        background-size: 200% 200%;
+        border-radius: 15px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4), 0 0 40px rgba(255, 107, 53, 0.3);
+        animation: gradientShift 3s ease infinite, glow 2s ease-in-out infinite;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .pricing-offer::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        animation: shine 3s infinite;
+    }
+    
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    @keyframes glow {
+        0%, 100% { box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4), 0 0 40px rgba(255, 107, 53, 0.3); }
+        50% { box-shadow: 0 10px 40px rgba(255, 107, 53, 0.6), 0 0 60px rgba(255, 107, 53, 0.5); }
+    }
+    
+    @keyframes shine {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .pricing-offer h3 {
+        font-size: 22px;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .pricing-plans {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 15px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .plan {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 15px 25px;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        transition: all 0.3s ease;
+    }
+    
+    .plan:hover {
+        transform: scale(1.05);
+        background: rgba(255, 255, 255, 0.35);
+        border-color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .plan-price {
+        font-size: 28px;
+        font-weight: 800;
+        margin: 5px 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .plan-label {
+        font-size: 14px;
+        opacity: 0.95;
+    }
+    
+    .offer-badge {
+        display: inline-block;
+        background: #28a745;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        animation: blink 1.5s infinite;
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .offer-expiry {
+        font-size: 13px;
+        margin-top: 10px;
+        opacity: 0.95;
+        font-weight: 500;
+        position: relative;
+        z-index: 1;
+        animation: blink 2s infinite;
+    }
 </style>
 {% endblock %}
 
@@ -137,6 +249,24 @@
         {% else %}
             <a href="{% url 'login' %}" class="login-btn">Login to Dashboard</a>
         {% endif %}
+        
+        <div class="pricing-offer">
+            <span class="offer-badge">🎉 EARLY BIRD OFFER</span>
+            <h3>Special Launch Pricing</h3>
+            <div class="pricing-plans">
+                <div class="plan">
+                    <div class="plan-label">Monthly</div>
+                    <div class="plan-price">₹300</div>
+                    <div class="plan-label">per month</div>
+                </div>
+                <div class="plan">
+                    <div class="plan-label">Annual</div>
+                    <div class="plan-price">₹3,000</div>
+                    <div class="plan-label">per year</div>
+                </div>
+            </div>
+            <div class="offer-expiry">⏰ Offer expires on 10-11-2025</div>
+        </div>
         
         <div class="features">
             <div class="feature">
