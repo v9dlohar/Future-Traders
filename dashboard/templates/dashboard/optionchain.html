@@ -145,6 +145,7 @@
                 <div class="ltp-info">
                     <span style="color: #8b949e; font-size: 14px;">LTP:</span>
                     <span class="ltp-value" id="symbolLTP">0</span>
+                    <span class="change-info" id="changeInfo" style="margin-left: 12px; font-size: 14px; font-weight: 600;"></span>
                 </div>
             </div>
         </div>
@@ -504,11 +505,24 @@
                     const tbody = document.querySelector('#optionchain-container tbody');
                     tbody.innerHTML = '';
                     
-                    // Update LTP in header
-                    if (result.ltp) {
-                        document.getElementById('symbolLTP').textContent = result.ltp;
+                    // Update LTP and change info in header
+                    if (result.quote_data) {
+                        const quote = result.quote_data;
+                        document.getElementById('symbolLTP').textContent = quote.ltp || '0';
+                        
+                        // Update change info
+                        const changeInfo = document.getElementById('changeInfo');
+                        if (quote.change_points !== undefined && quote.change_percent !== undefined) {
+                            const isPositive = quote.change_points >= 0;
+                            const sign = isPositive ? '+' : '';
+                            changeInfo.innerHTML = `${sign}${quote.change_points} (${sign}${quote.change_percent}%)`;
+                            changeInfo.style.color = isPositive ? '#10b981' : '#ef4444';
+                        } else {
+                            changeInfo.textContent = '';
+                        }
                     } else {
                         document.getElementById('symbolLTP').textContent = '0';
+                        document.getElementById('changeInfo').textContent = '';
                     }
                     
                     if (!result.data || result.data.length === 0) {
@@ -541,8 +555,8 @@
                     });
                     
                     // Add LTP line after table is rebuilt
-                    if (result.ltp) {
-                        addLTPLine(result.ltp, result.data);
+                    if (result.quote_data && result.quote_data.ltp) {
+                        addLTPLine(result.quote_data.ltp, result.data);
                     }
                     
                     // Highlight maximum values
