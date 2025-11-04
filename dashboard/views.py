@@ -99,13 +99,13 @@ def get_live_data(request):
                 print("Returning cached data")
                 return JsonResponse(last_successful_data[cache_key])
             else:
-                return JsonResponse({'data': [], 'ltp': 0})
+                return JsonResponse({'data': [], 'quote_data': {'ltp': 0, 'prev_close': 0, 'change_points': 0, 'change_percent': 0}})
         
-        data, ltp = result
-        print(f"Data fetched successfully: {len(data)} rows, LTP: {ltp}")
+        data, quote_data = result
+        print(f"Data fetched successfully: {len(data)} rows, LTP: {quote_data}")
         
         # Cache successful data
-        response_data = {'data': data.to_dict(orient='records'), 'ltp': ltp}
+        response_data = {'data': data, 'quote_data': quote_data}
         last_successful_data[cache_key] = response_data
         
         return JsonResponse(response_data)
@@ -120,5 +120,5 @@ def get_live_data(request):
             print("Returning cached data due to error")
             return JsonResponse(last_successful_data[cache_key])
         else:
-            return JsonResponse({'data': [], 'ltp': 0})
+            return JsonResponse({'data': [], 'quote_data': {'ltp': 0, 'prev_close': 0, 'change_points': 0, 'change_percent': 0}})
 
