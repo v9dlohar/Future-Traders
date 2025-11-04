@@ -34,6 +34,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 20px 0 20px;
+            max-width: 1800px;
+            margin: 0 auto;
             width: 100%;
         }
 
@@ -97,6 +99,8 @@
 
         .main-content {
             min-height: calc(100vh - 80px);
+            max-width: 1800px;
+            margin: 0 auto;
         }
 
         .modal {
@@ -191,73 +195,6 @@
             color: #ff6b35 !important;
         }
 
-        .theme-toggle-btn {
-            background: none;
-            border: none;
-            color: #495057;
-            font-size: 16px;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle-btn:hover {
-            background: rgba(255, 107, 53, 0.1);
-            color: #ff6b35;
-        }
-
-        /* Reduce margin for theme button on option chain page */
-        .optionchain-theme-btn {
-            margin-top: -2px;
-        }
-
-        /* Light theme styles */
-        body.light-theme {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e9ecef 100%);
-            color: #1a202c;
-        }
-
-        .light-theme .navbar {
-            background: rgba(255, 255, 255, 0.98);
-            border-bottom: 1px solid rgba(255, 107, 53, 0.3);
-        }
-
-        .light-theme .nav-links a {
-            color: #2d3748;
-        }
-
-        .light-theme .nav-links a:hover {
-            color: #ff6b35;
-            background: rgba(255, 107, 53, 0.1);
-        }
-
-        .light-theme .nav-links a.active {
-            color: #ff6b35;
-            background: rgba(255, 107, 53, 0.15);
-        }
-
-        .light-theme .theme-toggle-btn {
-            color: #2d3748;
-        }
-
-        .light-theme .theme-toggle-btn:hover {
-            color: #ff6b35;
-            background: rgba(255, 107, 53, 0.1);
-        }
-
-        .light-theme .modal-content {
-            background: rgba(255, 255, 255, 0.98);
-        }
-
-        .light-theme .modal h2 {
-            color: #1a202c;
-        }
-
-        .light-theme .modal p, .light-theme .modal ul {
-            color: #2d3748;
-        }
-
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .nav-container {
@@ -327,19 +264,10 @@
                     <li><a href="#" onclick="showContact()">Contact</a></li>
                     <li><a href="#" onclick="showSupport()">Support</a></li>
                     <li><a href="#" class="logout-link" onclick="document.getElementById('logoutForm').submit()">Logout</a></li>
-                    {% if request.resolver_match.url_name == 'optionchain' %}
-                        <li><button id="navThemeToggle" class="theme-toggle-btn optionchain-theme-btn">🌙</button></li>
-                    {% endif %}
-                    {% if request.resolver_match.url_name != 'optionchain' %}
-                        <li><button id="navThemeToggle" class="theme-toggle-btn">🌙</button></li>
-                    {% endif %}
                 {% else %}
                     <li><a href="#" onclick="showAbout()">About us</a></li>
                     <li><a href="#" onclick="showContact()">Contact</a></li>
                     <li><a href="{% url 'login' %}" {% if request.resolver_match.url_name == 'login' %}class="active"{% endif %}>Login</a></li>
-                    {% if request.resolver_match.url_name != 'optionchain' %}
-                        <li><button id="navThemeToggle" class="theme-toggle-btn">🌙</button></li>
-                    {% endif %}
                 {% endif %}
             </ul>
         </div>
@@ -377,7 +305,6 @@
                 <li><strong>Advanced Analytics:</strong> OI analysis, volume tracking, LTP monitoring</li>
                 <li><strong>Professional Interface:</strong> Clean, stable, and responsive design</li>
                 <li><strong>Strike Price Filtering:</strong> Customizable strike count display</li>
-                <li><strong>Theme Options:</strong> Light and dark mode support</li>
                 <li><strong>Mobile Responsive:</strong> Works seamlessly on all devices</li>
                 <li><strong>Secure Authentication:</strong> Protected user sessions</li>
             </ul>
@@ -456,24 +383,6 @@
                 });
             }
         });
-
-        // Theme toggle functionality
-        const navThemeToggle = document.getElementById('navThemeToggle');
-        if (navThemeToggle) {
-            navThemeToggle.addEventListener('click', function() {
-                document.body.classList.toggle('light-theme');
-                const isLight = document.body.classList.contains('light-theme');
-                this.textContent = isLight ? '☀️' : '🌙';
-                localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            });
-        }
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') {
-            document.body.classList.add('light-theme');
-            if (navThemeToggle) navThemeToggle.textContent = '☀️';
-        }
     </script>
 </body>
 </html>
