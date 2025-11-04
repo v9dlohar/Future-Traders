@@ -169,11 +169,18 @@
     }
     
     .pricing-offer h3 {
-        font-size: 22px;
+        font-size: 26px;
         margin-bottom: 15px;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         position: relative;
         z-index: 1;
+        font-weight: 800;
+        animation: flashText 1.5s infinite;
+    }
+    
+    @keyframes flashText {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.9; transform: scale(1.05); }
     }
     
     .pricing-plans {
@@ -214,26 +221,55 @@
     
     .offer-badge {
         display: inline-block;
-        background: #28a745;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
+        background: #dc3545;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 700;
         margin-bottom: 10px;
-        animation: blink 1.5s infinite;
-        box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        animation: flashBadge 1s infinite;
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.8);
         position: relative;
         z-index: 1;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    @keyframes flashBadge {
+        0%, 100% { 
+            background: #dc3545;
+            transform: scale(1);
+            box-shadow: 0 0 20px rgba(220, 53, 69, 0.8);
+        }
+        50% { 
+            background: #ff1744;
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 23, 68, 1);
+        }
     }
     
     .offer-expiry {
-        font-size: 13px;
-        margin-top: 10px;
-        opacity: 0.95;
-        font-weight: 500;
+        font-size: 15px;
+        margin-top: 15px;
+        font-weight: 700;
         position: relative;
         z-index: 1;
-        animation: blink 2s infinite;
+        animation: urgentBlink 1s infinite;
+        background: rgba(220, 53, 69, 0.3);
+        padding: 8px 15px;
+        border-radius: 8px;
+        display: inline-block;
+    }
+    
+    @keyframes urgentBlink {
+        0%, 100% { 
+            opacity: 1;
+            background: rgba(220, 53, 69, 0.3);
+        }
+        50% { 
+            opacity: 0.7;
+            background: rgba(255, 23, 68, 0.5);
+        }
     }
 </style>
 {% endblock %}
@@ -251,8 +287,8 @@
         {% endif %}
         
         <div class="pricing-offer">
-            <span class="offer-badge">🎉 EARLY BIRD OFFER</span>
-            <h3>Special Launch Pricing</h3>
+            <span class="offer-badge">⚡ FLASH SALE</span>
+            <h3>🔥 Limited Time Offer 🔥</h3>
             <div class="pricing-plans">
                 <div class="plan">
                     <div class="plan-label">Monthly</div>
