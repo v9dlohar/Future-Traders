@@ -112,11 +112,15 @@ def get_valid_access_token():
         if refreshed_token:
             return refreshed_token
     
-    # Fallback: Use auth_token to generate new tokens (valid for 15 days from generation)
-    auth_token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOiJPV1JWM05KSFFQIiwidXVpZCI6IjQwMjJhMjE3Mzc1YzRkNzI4MzM5Yzc2YzJmZTEwOGMxIiwiaXBBZGRyIjoiIiwibm9uY2UiOiIiLCJzY29wZSI6IiIsImRpc3BsYXlfbmFtZSI6IlhWMDI3NzQiLCJvbXMiOiJLMSIsImhzbV9rZXkiOiI0NWJhMDYzMGFkMzU1YWZjMzhmNmE1ZThlZmMwMTQyMGJhNTIzMDIyMzVlMDQ3MDk2YzhjNDM1ZSIsImlzRGRwaUVuYWJsZWQiOiJOIiwiaXNNdGZFbmFibGVkIjoiTiIsImF1ZCI6IltcImQ6MVwiLFwiZDoyXCIsXCJ4OjBcIixcIng6MVwiLFwieDoyXCJdIiwiZXhwIjoxNzYyMjk5MTI4LCJpYXQiOjE3NjIyNjkxMjgsImlzcyI6ImFwaS5sb2dpbi5meWVycy5pbiIsIm5iZiI6MTc2MjI2OTEyOCwic3ViIjoiYXV0aF9jb2RlIn0.3UNvfIcL7VWH28DqHlFs_xLZlKJ_Foahut2Gy304Vv8'
-    session.set_token(auth_token)
+    # Fallback: Use auth_token from environment variable or hardcoded
+    auth_token = os.getenv('FYERS_AUTH_TOKEN', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBfaWQiOiJPV1JWM05KSFFQIiwidXVpZCI6IjQwMjJhMjE3Mzc1YzRkNzI4MzM5Yzc2YzJmZTEwOGMxIiwiaXBBZGRyIjoiIiwibm9uY2UiOiIiLCJzY29wZSI6IiIsImRpc3BsYXlfbmFtZSI6IlhWMDI3NzQiLCJvbXMiOiJLMSIsImhzbV9rZXkiOiI0NWJhMDYzMGFkMzU1YWZjMzhmNmE1ZThlZmMwMTQyMGJhNTIzMDIyMzVlMDQ3MDk2YzhjNDM1ZSIsImlzRGRwaUVuYWJsZWQiOiJOIiwiaXNNdGZFbmFibGVkIjoiTiIsImF1ZCI6IltcImQ6MVwiLFwiZDoyXCIsXCJ4OjBcIixcIng6MVwiLFwieDoyXCJdIiwiZXhwIjoxNzYyMjk5MTI4LCJpYXQiOjE3NjIyNjkxMjgsImlzcyI6ImFwaS5sb2dpbi5meWVycy5pbiIsIm5iZiI6MTc2MjI2OTEyOCwic3ViIjoiYXV0aF9jb2RlIn0.3UNvfIcL7VWH28DqHlFs_xLZlKJ_Foahut2Gy304Vv8')
+    
+    if not auth_token:
+        print("⚠️ No auth token available")
+        return None
     
     try:
+        session.set_token(auth_token)
         response = session.generate_token()
         if response and response.get('code') == 200:
             access_token = response['access_token']
@@ -126,10 +130,13 @@ def get_valid_access_token():
                 print(f"✅ New tokens generated and saved")
             return access_token
         else:
-            return auth_token
+            print(f"⚠️ Token generation failed: {response}")
+            print("⚠️ Using mock data - Please regenerate auth_token from Fyers")
+            return None
     except Exception as e:
-        print(f"Error generating token: {e}")
-        return auth_token
+        print(f"❌ Error generating token: {e}")
+        print("⚠️ Using mock data - Token expired or invalid")
+        return None
 
 # Initialize access token on module load
 access_token = get_valid_access_token()
