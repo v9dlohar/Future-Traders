@@ -108,7 +108,7 @@ else:
 # Connection pooling for multiple users
 DATABASE_CONNECTION_POOLING = True
 
-CSRF_TRUSTED_ORIGINS = 
+CSRF_TRUSTED_ORIGINS = [
 "www.futuretraders.in"
 ]
 
@@ -219,6 +219,7 @@ LOGGING = {
         },
     },
 }
+
 
 
 
