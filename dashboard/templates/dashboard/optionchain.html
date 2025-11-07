@@ -84,6 +84,9 @@
         <div class="header">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h2>Welcome, {{ user.first_name }} {{ user.last_name }}</h2>
+                {% if user.is_superuser %}
+                <a href="{% url 'fyers_login' %}" target="_blank" style="background: linear-gradient(45deg, #10b981, #059669); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'">🔗 Connect Fyers</a>
+                {% endif %}
             </div>
             <div class="controls">
                 <div class="control-group">
