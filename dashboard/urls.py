@@ -2,7 +2,7 @@
 # Maps URLs to view functions
 
 from django.urls import path
-from .views import home_view, login_view, dashboard_view, optionchain_view, get_live_data
+from .views import home_view, login_view, dashboard_view, optionchain_view, get_live_data, fyers_login_view, fyers_callback_view
 from .admin_views import update_expiry_dates
 from django.contrib.auth.views import LoginView
 
@@ -13,4 +13,6 @@ urlpatterns = [
     path('optionchain/', optionchain_view, name='optionchain'),  # Main option chain page (protected)
     path('get-live-data/', get_live_data, name='get_live_data'),  # API endpoint for live data (protected)
     path('manage/expiry/', update_expiry_dates, name='admin_expiry'),  # Admin: Update expiry dates (protected)
+    path('fyers-login/', fyers_login_view, name='fyers_login'),  # Fyers authentication (admin only)
+    path('fyers-callback/', fyers_callback_view, name='fyers_callback'),  # Fyers OAuth callback
 ]
