@@ -109,7 +109,8 @@ else:
 DATABASE_CONNECTION_POOLING = True
 
 CSRF_TRUSTED_ORIGINS = [
-"www.futuretraders.in"
+"https://futuretraders.in",
+"https://future-traders-production.up.railway.app"
 ]
 
 # CORS settings for AJAX
@@ -219,6 +220,7 @@ LOGGING = {
         },
     },
 }
+
 
 
 
