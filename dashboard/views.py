@@ -8,6 +8,8 @@ import pandas as pd
 from .data import getLiveData
 from .data import update_symbol_expiry, update_strikecount
 from .models import UserSession
+from .fyers_auth import generate_auth_url, generate_tokens_from_auth_code
+from django.core.cache import cache
 
 # Cache for storing last successful data
 last_successful_data = {}
@@ -121,4 +123,23 @@ def get_live_data(request):
             return JsonResponse(last_successful_data[cache_key])
         else:
             return JsonResponse({'data': [], 'quote_data': {'ltp': 0, 'prev_close': 0, 'change_points': 0, 'change_percent': 0}})
+
+@login_required
+def fyers_login_view(request):
+    if not request.user.is_superuser:
+        return redirect('optionchain')
+    
+    auth_url = generate_auth_url()
+    return redirect(auth_url)
+
+def fyers_callback_view(request):
+    auth_code = request.GET.get('auth_code')
+    if auth_code:
+        try:
+            generate_tokens_from_auth_code(auth_code)
+            cache.clear()
+            return redirect('optionchain')
+        except Exception as e:
+            print(f"Error in Fyers callback: {e}")
+    return redirect('optionchain')
 
