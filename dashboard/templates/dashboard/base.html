@@ -263,6 +263,9 @@
                     <li><a href="#" onclick="showAbout()">About us</a></li>
                     <li><a href="#" onclick="showContact()">Contact</a></li>
                     <li><a href="#" onclick="showSupport()">Support</a></li>
+                    {% if user.is_superuser %}
+                    <li><a href="{% url 'fyers_login' %}" target="_blank" style="background: linear-gradient(45deg, #10b981, #059669); color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600; transition: all 0.3s ease;">🔗 Connect Fyers</a></li>
+                    {% endif %}
                     <li><a href="#" class="logout-link" onclick="document.getElementById('logoutForm').submit()">Logout</a></li>
                 {% else %}
                     <li><a href="#" onclick="showAbout()">About us</a></li>
