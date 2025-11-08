@@ -109,7 +109,7 @@ else:
 DATABASE_CONNECTION_POOLING = True
 
 CSRF_TRUSTED_ORIGINS = [
-"https://futuretraders.in",
+"https://www.futuretraders.in",
 "https://future-traders-production.up.railway.app"
 ]
 
@@ -220,6 +220,7 @@ LOGGING = {
         },
     },
 }
+
 
 
 
