@@ -196,7 +196,7 @@ def getLiveData(symbol=None, expiry=None, strikecount=None):
             if response and response.get('code') == 200 and response.get('data', {}).get('optionsChain'):
                 print(f"✅ Got real option chain data for {use_symbol}")
                 
-                # Extract real LTP from API response (first item is index data)
+                # Extract real LTP from option_data
                 option_data = response['data']['optionsChain']
                 index_data = option_data[0] if option_data else {}
                 quote_data = {
