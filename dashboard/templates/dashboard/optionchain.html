@@ -29,14 +29,34 @@
         .symbol-name { font-size: 16px; font-weight: 700; color: #24292f; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .ltp-info { display: flex; align-items: center; gap: 8px; }
         .ltp-value { font-size: 18px; font-weight: 800; color: #1a7f37; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
-        .table-container { background: #ffffff; margin: 0; overflow-x: auto; height: calc(100vh - 80px); overflow-y: auto; position: sticky; top: 80px; }
+        .table-container { background: #ffffff; margin: 0; overflow-x: auto; overflow-y: visible; position: sticky; top: 80px; transition: all 0.3s ease; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
-        th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; }
+        th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
         td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 12px; transition: background 0.2s; }
         tbody tr:hover { background: #e2e8f0; }
-        .calls-header { background: #016B61 !important; color: #ffffff !important; }
-        .puts-header { background: #F25912 !important; color: #ffffff !important; }
-        .strike-header { background: #f59e0b !important; color: #ffffff !important; }
+        .calls-header { background: #016B61 !important; color: #ffffff !important; transition: all 0.3s ease; }
+        .puts-header { background: #F25912 !important; color: #ffffff !important; transition: all 0.3s ease; }
+        .strike-header { background: #f59e0b !important; color: #ffffff !important; transition: all 0.3s ease; }
+        
+        .table-container.sticky-active {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .calls-header.sticky-active {
+            background: linear-gradient(135deg, #016B61, #018a7b) !important;
+            box-shadow: 0 4px 12px rgba(1, 107, 97, 0.3);
+        }
+        
+        .puts-header.sticky-active {
+            background: linear-gradient(135deg, #F25912, #ff6b35) !important;
+            box-shadow: 0 4px 12px rgba(242, 89, 18, 0.3);
+        }
+        
+        .strike-header.sticky-active {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24) !important;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
         .call-data { color: #1a7f37; font-weight: 500; }
         .put-data { color: #1a7f37; font-weight: 500; }
         .strike-price { background: #f6f8fa !important; color: #9a6700 !important; font-weight: 800; font-size: 13px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
