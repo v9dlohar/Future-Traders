@@ -57,23 +57,32 @@ def refresh_access_token(refresh_token):
     except:
         return None
 
+def is_token_valid(access_token):
+    """Test if access token is valid by making a simple API call"""
+    try:
+        fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
+        response = fyers.get_profile()
+        return response and response.get('code') == 200
+    except:
+        return False
+
 def get_valid_access_token():
     token_data = load_tokens()
     if not token_data or 'access_token' not in token_data:
         return None
     
-    # Check if token is expired (24 hours = 86400 seconds)
-    if 'timestamp' in token_data:
-        token_age = time.time() - token_data['timestamp']
-        if token_age > 86400:  # 24 hours
-            # Try to refresh token
-            if 'refresh_token' in token_data:
-                new_token = refresh_access_token(token_data['refresh_token'])
-                if new_token:
-                    return new_token
-            return None
+    # Test if current access token is valid by making API call
+    access_token = token_data['access_token']
+    if is_token_valid(access_token):
+        return access_token
     
-    return token_data['access_token']
+    # Token is expired, try to refresh
+    if 'refresh_token' in token_data:
+        new_token = refresh_access_token(token_data['refresh_token'])
+        if new_token:
+            return new_token
+    
+    return None
 
 def login_fyers():
     access_token = get_valid_access_token()
