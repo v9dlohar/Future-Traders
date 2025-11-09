@@ -38,23 +38,40 @@ def load_tokens():
 
 def refresh_access_token(refresh_token):
     try:
-        session = fyersModel.SessionModel(
-            client_id=client_id,
-            secret_key=secret_key,
-            redirect_uri=redirect_uri,
-            response_type="code",
-            grant_type="refresh_token"
-        )
-        session.set_token(refresh_token)
-        response = session.generate_token()
+        import requests
         
-        if response and response.get('code') == 200:
-            new_access_token = response['access_token']
-            new_refresh_token = response.get('refresh_token', refresh_token)
-            save_tokens(new_access_token, new_refresh_token)
-            return new_access_token
+        app_id_hash = os.getenv('FYERS_APP_ID_HASH')
+        pin = os.getenv('FYERS_PIN')
+        
+        if not app_id_hash or not pin:
+            print("Missing FYERS_APP_ID_HASH or FYERS_PIN environment variables")
+            return None
+        
+        url = "https://api-t1.fyers.in/api/v3/validate-refresh-token"
+        headers = {"Content-Type": "application/json"}
+        
+        data = {
+            "grant_type": "refresh_token",
+            "appIdHash": app_id_hash,
+            "refresh_token": refresh_token,
+            "pin": pin
+        }
+        
+        response = requests.post(url, headers=headers, json=data)
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result.get('code') == 200:
+                new_access_token = result.get('access_token')
+                if new_access_token:
+                    # Keep existing refresh token, only update access token
+                    save_tokens(new_access_token, refresh_token)
+                    return new_access_token
+        
+        print(f"Token refresh failed: {response.status_code}, {response.json()}")
         return None
-    except:
+    except Exception as e:
+        print(f"Error refreshing token: {e}")
         return None
 
 def is_token_valid(access_token):
