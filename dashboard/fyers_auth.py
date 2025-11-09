@@ -2,7 +2,6 @@
 from fyers_apiv3 import fyersModel
 import os
 import json
-import time
 from pathlib import Path
 
 # Load .env file
@@ -27,7 +26,7 @@ if not client_id or not secret_key or not redirect_uri:
 
 def save_tokens(access_token, refresh_token):
     with open(TOKEN_FILE, 'w') as f:
-        json.dump({'access_token': access_token, 'refresh_token': refresh_token, 'timestamp': time.time()}, f)
+        json.dump({'access_token': access_token, 'refresh_token': refresh_token}, f)
 
 def load_tokens():
     try:
