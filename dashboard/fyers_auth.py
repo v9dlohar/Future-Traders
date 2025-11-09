@@ -3,7 +3,6 @@ from fyers_apiv3 import fyersModel
 import os
 import json
 from pathlib import Path
-from django.conf import settings
 
 # Load .env file
 from dotenv import load_dotenv
@@ -77,9 +76,7 @@ def refresh_access_token(refresh_token):
 def is_token_valid(access_token):
     """Test if access token is valid by making a simple API call"""
     try:
-        # Use production base URL when DEBUG=False
-        base_url = "https://api-t2.fyers.in/vagator/v2" if not getattr(settings, 'DEBUG', True) else "https://api-t1.fyers.in/vagator/v2"
-        fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="", base_url=base_url)
+        fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
         response = fyers.get_profile()
         return response and response.get('code') == 200
     except:
@@ -108,9 +105,7 @@ def login_fyers():
     if not access_token:
         return None
     
-    # Use production base URL when DEBUG=False
-    base_url = "https://api-t2.fyers.in/vagator/v2" if not getattr(settings, 'DEBUG', True) else "https://api-t1.fyers.in/vagator/v2"
-    fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="", base_url=base_url)
+    fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
     return fyers
 
 def generate_auth_url():
