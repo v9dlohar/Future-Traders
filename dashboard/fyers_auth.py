@@ -3,6 +3,7 @@ from fyers_apiv3 import fyersModel
 import os
 import json
 from pathlib import Path
+from django.conf import settings
 
 # Load .env file
 from dotenv import load_dotenv
@@ -76,27 +77,43 @@ def refresh_access_token(refresh_token):
 def is_token_valid(access_token):
     """Test if access token is valid by making a simple API call"""
     try:
-        fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
+        # Use production base URL when DEBUG=False
+        base_url = "https://api-t2.fyers.in/vagator/v2" if not getattr(settings, 'DEBUG', True) else "https://api-t1.fyers.in/vagator/v2"
+        fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="", base_url=base_url)
         response = fyers.get_profile()
-        return response and response.get('code') == 200
-    except:
+        print(f"Token validation response: {response}")
+        is_valid = response and response.get('code') == 200
+        print(f"Token is valid: {is_valid}")
+        return is_valid
+    except Exception as e:
+        print(f"Token validation error: {e}")
         return False
 
 def get_valid_access_token():
     token_data = load_tokens()
     if not token_data or 'access_token' not in token_data:
+        print("No token data found")
         return None
     
     # Test if current access token is valid by making API call
     access_token = token_data['access_token']
+    print(f"Testing access token validity...")
     if is_token_valid(access_token):
+        print("Access token is valid")
         return access_token
     
     # Token is expired, try to refresh
+    print("Access token is invalid, attempting refresh...")
     if 'refresh_token' in token_data:
+        print("Refresh token found, attempting to refresh access token")
         new_token = refresh_access_token(token_data['refresh_token'])
         if new_token:
+            print("Successfully refreshed access token")
             return new_token
+        else:
+            print("Failed to refresh access token")
+    else:
+        print("No refresh token found")
     
     return None
 
@@ -105,7 +122,9 @@ def login_fyers():
     if not access_token:
         return None
     
-    fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
+    # Use production base URL when DEBUG=False
+    base_url = "https://api-t2.fyers.in/vagator/v2" if not getattr(settings, 'DEBUG', True) else "https://api-t1.fyers.in/vagator/v2"
+    fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="", base_url=base_url)
     return fyers
 
 def generate_auth_url():
