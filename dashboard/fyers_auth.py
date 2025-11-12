@@ -112,6 +112,11 @@ def login_fyers():
     if not access_token:
         return None
     
+    # Print refresh token from file
+    token_data = load_tokens()
+    if token_data and 'refresh_token' in token_data:
+        print(f"Current refresh token: {token_data['refresh_token'][:30]}...")
+    
     fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
     return fyers
 
