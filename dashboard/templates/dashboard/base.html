@@ -256,7 +256,10 @@
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="/" class="nav-brand">Future Traders</a>
+            <a href="/" class="nav-brand">
+                <img src="{% static 'dashboard/logo.png' %}" alt="Future Traders" style="height: 66px; width: auto; margin-right: 10px; vertical-align: middle;">
+                Future Traders
+            </a>
             <ul class="nav-links">
                 <li><a href="/" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a></li>
                 <li><a href="#" onclick="showFeatures()">Features</a></li>
