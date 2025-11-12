@@ -43,11 +43,13 @@ def load_tokens():
 def refresh_access_token(refresh_token):
     try:
         import requests
+        import json
         
         app_id_hash = os.getenv('FYERS_APP_ID_HASH')
         pin = os.getenv('FYERS_PIN')
         
-        print(f"Debug: Refresh token vars - app_id_hash={bool(app_id_hash)}, pin={bool(pin)}")
+        print(f"Refresh token method: app_id_hash={bool(app_id_hash)}, pin={bool(pin)}")
+        print(f"Using refresh token: {refresh_token}")
         
         if not app_id_hash or not pin:
             print("Missing FYERS_APP_ID_HASH or FYERS_PIN environment variables")
@@ -56,28 +58,36 @@ def refresh_access_token(refresh_token):
         url = "https://api-t1.fyers.in/api/v3/validate-refresh-token"
         headers = {"Content-Type": "application/json"}
         
-        data = {
+        payload = {
             "grant_type": "refresh_token",
             "appIdHash": app_id_hash,
             "refresh_token": refresh_token,
             "pin": pin
         }
         
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        
+        print("Status Code:", response.status_code)
+        print("Response JSON:", response.json())
         
         if response.status_code == 200:
             result = response.json()
             if result.get('code') == 200:
                 new_access_token = result.get('access_token')
                 if new_access_token:
-                    # Keep existing refresh token, only update access token
+                    print("✅ Refresh token method WORKING - New access token generated")
                     save_tokens(new_access_token, refresh_token)
                     return new_access_token
+                else:
+                    print("❌ Refresh token method FAILED - No access token in response")
+            else:
+                print(f"❌ Refresh token method FAILED - API error code: {result.get('code')}")
+        else:
+            print(f"❌ Refresh token method FAILED - HTTP error: {response.status_code}")
         
-        print(f"Token refresh failed: {response.status_code}, {response.json()}")
         return None
     except Exception as e:
-        print(f"Error refreshing token: {e}")
+        print(f"❌ Refresh token method FAILED - Exception: {e}")
         return None
 
 def is_token_valid(access_token):
@@ -111,11 +121,6 @@ def login_fyers():
     access_token = get_valid_access_token()
     if not access_token:
         return None
-    
-    # Print refresh token from file
-    token_data = load_tokens()
-    if token_data and 'refresh_token' in token_data:
-        print(f"Current refresh token: {token_data['refresh_token']}")
     
     fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
     return fyers
