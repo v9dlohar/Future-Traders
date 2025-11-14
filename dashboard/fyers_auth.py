@@ -1,8 +1,8 @@
 # ========== FYERS AUTHENTICATION FOR THIRD PARTY USERS ==========
 from fyers_apiv3 import fyersModel
 import os
-import json
 from pathlib import Path
+from django.conf import settings
 
 # Load .env file
 from dotenv import load_dotenv
@@ -23,20 +23,23 @@ print(f"Debug: FYERS credentials loaded - client_id={bool(client_id)}, secret_ke
 if not client_id or not secret_key or not redirect_uri:
     raise ValueError(f'Environment variables not loaded. Check .env file at {env_path}')
 
-TOKEN_FILE = str(Path(__file__).resolve().parent.parent / 'fyers_tokens.json')
-
 # Ensure credentials are set
 if not client_id or not secret_key or not redirect_uri:
     raise ValueError('FYERS credentials not configured')
 
 def save_tokens(access_token, refresh_token):
-    with open(TOKEN_FILE, 'w') as f:
-        json.dump({'access_token': access_token, 'refresh_token': refresh_token}, f)
+    from .models import FyersToken
+    # Delete existing tokens and create new one
+    FyersToken.objects.all().delete()
+    FyersToken.objects.create(access_token=access_token, refresh_token=refresh_token)
 
 def load_tokens():
+    from .models import FyersToken
     try:
-        with open(TOKEN_FILE, 'r') as f:
-            return json.load(f)
+        token = FyersToken.objects.first()
+        if token:
+            return {'access_token': token.access_token, 'refresh_token': token.refresh_token}
+        return None
     except:
         return None
 
@@ -81,7 +84,11 @@ def refresh_access_token(refresh_token):
                 else:
                     print("❌ Refresh token method FAILED - No access token in response")
             else:
-                print(f"❌ Refresh token method FAILED - API error code: {result.get('code')}")
+                error_code = result.get('code')
+                if error_code == -1009:
+                    print("❌ Refresh token EXPIRED - Need fresh authentication (15 days expired)")
+                else:
+                    print(f"❌ Refresh token method FAILED - API error code: {error_code}")
         else:
             print(f"❌ Refresh token method FAILED - HTTP error: {response.status_code}")
         
