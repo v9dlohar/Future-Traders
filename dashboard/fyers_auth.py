@@ -1,8 +1,8 @@
 # ========== FYERS AUTHENTICATION FOR THIRD PARTY USERS ==========
 from fyers_apiv3 import fyersModel
 import os
+import json
 from pathlib import Path
-from django.conf import settings
 
 # Load .env file
 from dotenv import load_dotenv
@@ -23,25 +23,42 @@ print(f"Debug: FYERS credentials loaded - client_id={bool(client_id)}, secret_ke
 if not client_id or not secret_key or not redirect_uri:
     raise ValueError(f'Environment variables not loaded. Check .env file at {env_path}')
 
+# Stored tokens - these will be updated when new tokens are generated
+STORED_ACCESS_TOKEN = None
+STORED_REFRESH_TOKEN = None
+
 # Ensure credentials are set
 if not client_id or not secret_key or not redirect_uri:
     raise ValueError('FYERS credentials not configured')
 
 def save_tokens(access_token, refresh_token):
-    from .models import FyersToken
-    # Delete existing tokens and create new one
-    FyersToken.objects.all().delete()
-    FyersToken.objects.create(access_token=access_token, refresh_token=refresh_token)
+    global STORED_ACCESS_TOKEN, STORED_REFRESH_TOKEN
+    STORED_ACCESS_TOKEN = access_token
+    STORED_REFRESH_TOKEN = refresh_token
+    
+    # Also update the file with new token values
+    update_tokens_in_file(access_token, refresh_token)
 
 def load_tokens():
-    from .models import FyersToken
-    try:
-        token = FyersToken.objects.first()
-        if token:
-            return {'access_token': token.access_token, 'refresh_token': token.refresh_token}
-        return None
-    except:
-        return None
+    global STORED_ACCESS_TOKEN, STORED_REFRESH_TOKEN
+    if STORED_ACCESS_TOKEN and STORED_REFRESH_TOKEN:
+        return {'access_token': STORED_ACCESS_TOKEN, 'refresh_token': STORED_REFRESH_TOKEN}
+    return None
+
+def update_tokens_in_file(access_token, refresh_token):
+    """Update the token variables in this file"""
+    import re
+    
+    file_path = __file__
+    with open(file_path, 'r') as f:
+        content = f.read()
+    
+    # Update tokens in file
+    content = re.sub(r'STORED_ACCESS_TOKEN = .*', f'STORED_ACCESS_TOKEN = "{access_token}"', content)
+    content = re.sub(r'STORED_REFRESH_TOKEN = .*', f'STORED_REFRESH_TOKEN = "{refresh_token}"', content)
+    
+    with open(file_path, 'w') as f:
+        f.write(content)
 
 def refresh_access_token(refresh_token):
     try:
@@ -138,7 +155,7 @@ def generate_auth_url():
         secret_key=secret_key,
         redirect_uri=redirect_uri,
         response_type="code",
-        grant_type="authorization_code"
+        # grant_type="authorization_code"
     )
     if app_id_hash:
         return session.generate_authcode() + f"&appIdHash={app_id_hash}"
