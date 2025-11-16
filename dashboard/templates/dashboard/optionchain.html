@@ -827,7 +827,7 @@
                     // Create LTP line row
                     const ltpRow = document.createElement('tr');
                     ltpRow.className = 'ltp-line-row';
-                    ltpRow.innerHTML = `<td colspan="25" style="padding: 0; position: relative; height: 4px; background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626); border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"><div style="position: absolute; left: 50%; top: -9px; transform: translateX(-50%); background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #b91c1c 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px;">${ltp}</div></td>`;
+                    ltpRow.innerHTML = `<td colspan="25" style="padding: 0; position: relative; height: 4px; background: linear-gradient(90deg, #dc2626, #ef4444, #dc2626); border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"><div style="position: absolute; left: 50%; top: -9px; transform: translateX(-50%); background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #b91c1c 100%); color: white; padding: 4px 12px; font-size: 9px; font-weight: 600; border-radius: 6px; box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; min-width: 60px; text-align: center;">${ltp}</div></td>`;
                     
                     // Insert after current row
                     if (rows[i] && rows[i].nextSibling) {
