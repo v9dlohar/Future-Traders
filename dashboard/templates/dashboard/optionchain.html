@@ -164,30 +164,30 @@
         <table>
             <thead>
                 <tr>
-                    <th colspan="10" class="calls-header">CALLS</th>
+                    <th colspan="5" class="calls-header">CALLS</th>
                     <th class="strike-header">STRIKE</th>
-                    <th colspan="10" class="puts-header">PUTS</th>
+                    <th colspan="5" class="puts-header">PUTS</th>
                 </tr>
                 <tr>
-                    <th class="calls-header" style="font-size: 14px;">OI CH</th>
-                    <th class="calls-header" style="font-size: 14px;">OI</th>
-                    <th class="calls-header" style="font-size: 14px;">VOLUME</th>
-                    <th class="calls-header" style="font-size: 14px;">IV</th>
-                    <th class="calls-header" style="font-size: 14px;">GAMMA</th>
-                    <th class="calls-header" style="font-size: 14px;">THETA</th>
-                    <th class="calls-header" style="font-size: 14px;">VEGA</th>
-                    <th class="calls-header" style="font-size: 14px;">DELTA</th>
-                    <th class="calls-header" style="font-size: 14px;">LTP</th>
-                    <th class="strike-header" style="font-size: 14px;">PRICE</th>
-                    <th class="puts-header" style="font-size: 14px;">LTP</th>
-                    <th class="puts-header" style="font-size: 14px;">DELTA</th>
-                    <th class="puts-header" style="font-size: 14px;">VEGA</th>
-                    <th class="puts-header" style="font-size: 14px;">THETA</th>
-                    <th class="puts-header" style="font-size: 14px;">GAMMA</th>
-                    <th class="puts-header" style="font-size: 14px;">IV</th>
-                    <th class="puts-header" style="font-size: 14px;">VOLUME</th>
-                    <th class="puts-header" style="font-size: 14px;">OI</th>
-                    <th class="puts-header" style="font-size: 14px;">OI CH</th>
+                    <th class="calls-header">OI CH</th>
+                    <th class="calls-header">OI</th>
+                    <th class="calls-header">VOLUME</th>
+                    <th class="calls-header">IV</th>
+                    <th class="calls-header">GAMMA</th>
+                    <th class="calls-header">THETA</th>
+                    <th class="calls-header">VEGA</th>
+                    <th class="calls-header">DELTA</th>
+                    <th class="calls-header">LTP</th>
+                    <th class="strike-header">PRICE</th>
+                    <th class="puts-header">LTP</th>
+                    <th class="puts-header">DELTA</th>
+                    <th class="puts-header">VEGA</th>
+                    <th class="puts-header">THETA</th>
+                    <th class="puts-header">GAMMA</th>
+                    <th class="puts-header">IV</th>
+                    <th class="puts-header">VOLUME</th>
+                    <th class="puts-header">OI</th>
+                    <th class="puts-header">OI CH</th>
                 </tr>
             </thead>
             <tbody>
@@ -729,23 +729,23 @@
                         // Greek columns have special classes (greek-iv, greek-delta, etc.) for visibility toggle
                         tr.innerHTML = `
                             <td class="call-data call-oich ${isCallITM ? 'itm-call' : ''}">${formatIndian(row.CALL_OICH)}</td>
-                            <td class="call-data call-oi ${isCallITM ? 'itm-call' : ''}">${formatIndian(row.CALL_OI)}<br><small style="color: #666; font-size: 17px;">(${parseFloat(row.CALL_PMCOI) % 1 === 0 ? parseInt(row.CALL_PMCOI) : parseFloat(row.CALL_PMCOI).toFixed(2)}%)</small></td>
-                            <td class="call-data call-volume ${isCallITM ? 'itm-call' : ''}">${formatIndian(row.CALL_VOLUME)}<br><small style="color: #666; font-size: 17px;">(${parseFloat(row.CALL_PMCV) % 1 === 0 ? parseInt(row.CALL_PMCV) : parseFloat(row.CALL_PMCV).toFixed(2)}%)</small></td>
+                            <td class="call-data call-oi ${isCallITM ? 'itm-call' : ''}">${formatIndian(row.CALL_OI)}<br><small style="color: #666; font-size: 10px;">(${parseFloat(row.CALL_PMCOI) % 1 === 0 ? parseInt(row.CALL_PMCOI) : parseFloat(row.CALL_PMCOI).toFixed(2)}%)</small></td>
+                            <td class="call-data call-volume ${isCallITM ? 'itm-call' : ''}">${formatIndian(row.CALL_VOLUME)}<br><small style="color: #666; font-size: 10px;">(${parseFloat(row.CALL_PMCV) % 1 === 0 ? parseInt(row.CALL_PMCV) : parseFloat(row.CALL_PMCV).toFixed(2)}%)</small></td>
                             <td class="call-data greek-iv ${isCallITM ? 'itm-call' : ''}">${row.CALL_IV}</td>
                             <td class="call-data greek-gamma ${isCallITM ? 'itm-call' : ''}">${row.CALL_GAMMA}</td>
                             <td class="call-data greek-theta ${isCallITM ? 'itm-call' : ''}">${row.CALL_THETA}</td>
                             <td class="call-data greek-vega ${isCallITM ? 'itm-call' : ''}">${row.CALL_VEGA}</td>
                             <td class="call-data greek-delta ${isCallITM ? 'itm-call' : ''}">${row.CALL_DELTA}</td>
-                            <td class="call-data ${isCallITM ? 'itm-call' : ''}" style="font-weight: 600;">${row.CALL_LTP}<br><small class="${row.CALL_LTPCH >= 0 ? 'positive' : 'negative'}" style="font-size: 17px;">(${row.CALL_LTPCH})</small></td>
+                            <td class="call-data ${isCallITM ? 'itm-call' : ''}" style="font-weight: 600;">${row.CALL_LTP}<br><small class="${row.CALL_LTPCH >= 0 ? 'positive' : 'negative'}" style="font-size: 10px;">(${row.CALL_LTPCH})</small></td>
                             <td class="strike-price">${row.STRIKE_PRICE}</td>
-                            <td class="put-data ${isPutITM ? 'itm-put' : ''}" style="font-weight: 600;">${row.PUT_LTP}<br><small class="${row.PUT_LTPCH >= 0 ? 'positive' : 'negative'}" style="font-size: 17px;">(${row.PUT_LTPCH})</small></td>
+                            <td class="put-data ${isPutITM ? 'itm-put' : ''}" style="font-weight: 600;">${row.PUT_LTP}<br><small class="${row.PUT_LTPCH >= 0 ? 'positive' : 'negative'}" style="font-size: 10px;">(${row.PUT_LTPCH})</small></td>
                             <td class="put-data greek-delta ${isPutITM ? 'itm-put' : ''}">${row.PUT_DELTA}</td>
                             <td class="put-data greek-vega ${isPutITM ? 'itm-put' : ''}">${row.PUT_VEGA}</td>
                             <td class="put-data greek-theta ${isPutITM ? 'itm-put' : ''}">${row.PUT_THETA}</td>
                             <td class="put-data greek-gamma ${isPutITM ? 'itm-put' : ''}">${row.PUT_GAMMA}</td>
                             <td class="put-data greek-iv ${isPutITM ? 'itm-put' : ''}">${row.PUT_IV}</td>
-                            <td class="put-data put-volume ${isPutITM ? 'itm-put' : ''}">${formatIndian(row.PUT_VOLUME)}<br><small style="color: #666; font-size: 17px;">(${parseFloat(row.PUT_PMPV) % 1 === 0 ? parseInt(row.PUT_PMPV) : parseFloat(row.PUT_PMPV).toFixed(2)}%)</small></td>
-                            <td class="put-data put-oi ${isPutITM ? 'itm-put' : ''}">${formatIndian(row.PUT_OI)}<br><small style="color: #666; font-size: 17px;">(${parseFloat(row.PUT_PMPOI) % 1 === 0 ? parseInt(row.PUT_PMPOI) : parseFloat(row.PUT_PMPOI).toFixed(2)}%)</small></td>
+                            <td class="put-data put-volume ${isPutITM ? 'itm-put' : ''}">${formatIndian(row.PUT_VOLUME)}<br><small style="color: #666; font-size: 10px;">(${parseFloat(row.PUT_PMPV) % 1 === 0 ? parseInt(row.PUT_PMPV) : parseFloat(row.PUT_PMPV).toFixed(2)}%)</small></td>
+                            <td class="put-data put-oi ${isPutITM ? 'itm-put' : ''}">${formatIndian(row.PUT_OI)}<br><small style="color: #666; font-size: 10px;">(${parseFloat(row.PUT_PMPOI) % 1 === 0 ? parseInt(row.PUT_PMPOI) : parseFloat(row.PUT_PMPOI).toFixed(2)}%)</small></td>
                             <td class="put-data put-oich ${isPutITM ? 'itm-put' : ''}">${formatIndian(row.PUT_OICH)}</td>
                         `;
                         tbody.appendChild(tr);
