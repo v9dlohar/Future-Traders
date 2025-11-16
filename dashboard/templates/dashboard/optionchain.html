@@ -32,7 +32,7 @@
         .table-container { background: #ffffff; margin: 0; overflow-x: auto; height: calc(100vh - 80px); overflow-y: auto; position: sticky; top: 80px; transition: all 0.3s ease; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
         th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 16px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
-        td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 19px; transition: background 0.2s; }
+        td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 19px; transition: background 0.2s; line-height: 1.2; }
         tbody tr:hover { background: #e2e8f0; }
         .calls-header { background: #016B61 !important; color: #ffffff !important; transition: all 0.3s ease; }
         .puts-header { background: #F25912 !important; color: #ffffff !important; transition: all 0.3s ease; }
@@ -65,6 +65,7 @@
         .highlight-max { background: #adff2f  !important; color: #000 !important; border-radius: 4px !important; }
         .highlight-75 { background: #ffff00 !important; color: #000 !important; border-radius: 4px !important; }
         .highlight-max small, .highlight-75 small { color: #000 !important; font-weight: normal !important; }
+        td small { line-height: 1; margin-top: 0; }
 
         .ltp-line { border-top: 2px solid #0969da; background: linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.2), transparent); position: relative; }
         .ltp-line::after { content: attr(data-ltp); position: absolute; left: 50%; top: -11px; transform: translateX(-50%); background: linear-gradient(135deg, #0969da 0%, #2563eb 50%, #1d4ed8 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(9, 105, 218, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; }
