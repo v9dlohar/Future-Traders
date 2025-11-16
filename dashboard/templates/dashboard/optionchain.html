@@ -32,10 +32,12 @@
         .table-container { background: #ffffff; margin: 0; overflow-x: auto; height: calc(100vh - 80px); overflow-y: auto; position: sticky; top: 80px; transition: all 0.3s ease; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
         th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 100; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
-        td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 16px; }
+        td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 16px; line-height: 1.1; }
+        td small { display: block; margin-top: 4px; line-height: 1; }
+        .call-oi small, .call-volume small, .put-oi small, .put-volume small { margin-top: 6px; }
         tbody tr:hover { background: #fef3e2; }
         tbody tr:hover .itm-call, tbody tr:hover .itm-put { background: #fef3e2 !important; }
-        tbody tr:hover .highlight-max { background: #22c55e !important; }
+        tbody tr:hover .highlight-max { background: #adff2f !important; }
         tbody tr:hover .highlight-75 { background: #ffff00 !important; }
         .calls-header { background: #016B61 !important; color: #ffffff !important; transition: all 0.3s ease; }
         .puts-header { background: #F25912 !important; color: #ffffff !important; transition: all 0.3s ease; }
@@ -65,7 +67,7 @@
         .strike-price { background: #e5e7eb !important; color: #9a6700 !important; font-weight: 800; font-size: 16px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .positive { color: #1a7f37; font-weight: 700; }
         .negative { color: #cf222e; font-weight: 700; }
-        .highlight-max { background: #22c55e !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 1; }
+        .highlight-max { background: #adff2f !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 1; }
         .highlight-75 { background: #ffff00 !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 10 !important; border: 2px solid #ffd700 !important; }
         .highlight-max small, .highlight-75 small { color: #000 !important; font-weight: normal !important; }
         /* .itm-call { background: #f3f4f6 !important; }
