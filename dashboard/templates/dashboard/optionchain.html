@@ -30,7 +30,8 @@
         .ltp-info { display: flex; align-items: center; gap: 8px; }
         .ltp-value { font-size: 18px; font-weight: 800; color: #1a7f37; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .table-container { background: #ffffff; margin: 0; overflow-x: auto; height: calc(100vh - 80px); overflow-y: auto; position: sticky; top: 80px; transition: all 0.3s ease; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; visibility: hidden; }
+        table.ready { visibility: visible; }
         th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
         td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 12px; transition: background 0.2s; line-height: 1.2; }
         tbody tr:hover { background: #e2e8f0; }
@@ -375,6 +376,9 @@
                 
                 // Apply Greek column visibility
                 toggleGreeksColumns();
+                
+                // Show table after proper initialization
+                document.querySelector('table').classList.add('ready');
                 
                 // Load initial data
                 setTimeout(() => {
@@ -753,6 +757,9 @@
                     
                     // Apply Greeks column visibility based on checkbox state
                     toggleGreeksColumns();
+                    
+                    // Ensure table is visible
+                    document.querySelector('table').classList.add('ready');
                     
                     // Add LTP line after table is rebuilt
                     if (result.quote_data && result.quote_data.ltp) {
