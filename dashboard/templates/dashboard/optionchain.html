@@ -901,11 +901,11 @@
         }
         
         // ========== PERIODIC DATA REFRESH ==========
-        // Auto-refresh option chain data every 2 seconds
+        // Auto-refresh option chain data every 1 second
         setInterval(() => {
             if (activeSymbol && activeExpiry) {
                 updateData();
             }
-        }, 2000);
+        }, 1000);
     </script>
 {% endblock %}
