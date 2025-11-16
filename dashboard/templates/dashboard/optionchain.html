@@ -32,7 +32,7 @@
         .table-container { background: #ffffff; margin: 0; overflow-x: auto; height: calc(100vh - 80px); overflow-y: auto; position: sticky; top: 80px; transition: all 0.3s ease; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
         th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
-        td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 12px; }
+        td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 13px; }
         tbody tr:hover { background: #fef3e2; }
         tbody tr:hover .itm-call, tbody tr:hover .itm-put { background: #fef3e2 !important; }
         .calls-header { background: #016B61 !important; color: #ffffff !important; transition: all 0.3s ease; }
@@ -63,11 +63,11 @@
         .strike-price { background: #e5e7eb !important; color: #9a6700 !important; font-weight: 800; font-size: 13px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .positive { color: #1a7f37; font-weight: 700; }
         .negative { color: #cf222e; font-weight: 700; }
-        .highlight-max { background: #9dc209 !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 1; }
-        .highlight-75 { background: #ffff00 !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 1; }
+        .highlight-max { background: #22c55e !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 1; }
+        .highlight-75 { background: #ffff00 !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 10 !important; border: 2px solid #ffd700 !important; }
         .highlight-max small, .highlight-75 small { color: #000 !important; font-weight: normal !important; }
-        .itm-call { background: #f3f4f6 !important; }
-        .itm-put { background: #f3f4f6 !important; }
+        /* .itm-call { background: #f3f4f6 !important; }
+        .itm-put { background: #f3f4f6 !important; } */
         .ltp-line { border-top: 2px solid #0969da; background: linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.2), transparent); position: relative; }
         .ltp-line::after { content: attr(data-ltp); position: absolute; left: 50%; top: -11px; transform: translateX(-50%); background: linear-gradient(135deg, #0969da 0%, #2563eb 50%, #1d4ed8 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(9, 105, 218, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; }
         .volume-bar { height: 3px; background: #e9ecef; border-radius: 2px; margin-top: 4px; overflow: hidden; }
@@ -864,7 +864,7 @@
                 cells.forEach((cell, index) => {
                     const value = parseFloat(cell.textContent.replace(/[,%]/g, ''));
                     const smallText = cell.querySelector('small');
-                    const percentage = smallText ? parseFloat(smallText.textContent.replace('%', '')) : 0;
+                    const percentage = smallText ? parseFloat(smallText.textContent.replace(/[()%]/g, '')) : 0;
                     cellData.push({ cell, value, percentage, index });
                 });
                 
