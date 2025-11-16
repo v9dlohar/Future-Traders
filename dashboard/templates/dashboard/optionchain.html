@@ -67,6 +67,21 @@
         .highlight-75 { background: #ffff00 !important; color: #000 !important; border-radius: 4px !important; }
         .highlight-max small, .highlight-75 small { color: #000 !important; font-weight: normal !important; }
         td small { line-height: 1; margin-top: 0; }
+        
+        /* Drawing Tools */
+        .drawing-toolbar { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); background: rgba(255,255,255,0.95); border-radius: 12px; padding: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+        .tool-btn { width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; }
+        .tool-btn:hover { transform: scale(1.1); }
+        .tool-btn.active { background: #3b82f6; color: white; }
+        .pen-btn { background: #10b981; color: white; }
+        .pencil-btn { background: #f59e0b; color: white; }
+        .eraser-btn { background: #ef4444; color: white; }
+        .color-picker { width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; }
+        .clear-btn { background: #6b7280; color: white; }
+        
+        /* Drawing Canvas */
+        #drawingCanvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 999; }
+        #drawingCanvas.drawing { pointer-events: all; }
 
         .ltp-line { border-top: 2px solid #0969da; background: linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.2), transparent); position: relative; }
         .ltp-line::after { content: attr(data-ltp); position: absolute; left: 50%; top: -11px; transform: translateX(-50%); background: linear-gradient(135deg, #0969da 0%, #2563eb 50%, #1d4ed8 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(9, 105, 218, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; }
@@ -161,7 +176,18 @@
                 </div>
             </div>
         </div>
-        <div class="table-container" id="optionchain-container">
+        <!-- Drawing Tools -->
+        <div class="drawing-toolbar">
+            <button class="tool-btn pen-btn" id="penTool" title="Pen">🖊️</button>
+            <button class="tool-btn pencil-btn" id="pencilTool" title="Pencil">✏️</button>
+            <button class="tool-btn eraser-btn" id="eraserTool" title="Eraser">🧽</button>
+            <input type="color" class="color-picker" id="colorPicker" value="#ff0000" title="Color">
+            <button class="tool-btn clear-btn" id="clearCanvas" title="Clear All">🗑️</button>
+        </div>
+        
+        <div class="table-container" id="optionchain-container" style="position: relative;">
+            <!-- Drawing Canvas -->
+            <canvas id="drawingCanvas"></canvas>
         <table>
             <thead>
                 <tr>
@@ -461,6 +487,8 @@
                     allExpiries = filterValidExpiries(symbolData[symbol] || []);
                     const newExpiry = allExpiries[0] || '';
                     document.getElementById('expiryInput').value = newExpiry;
+                    // Save current canvas state
+                    saveCanvasState();
                     // Update active values IMMEDIATELY for data rendering
                     activeSymbol = symbol;
                     activeExpiry = newExpiry;
@@ -532,6 +560,8 @@
                     const selectedSymbol = filteredSymbols[selectedIndex];
                     this.value = selectedSymbol;
                     dropdown.style.display = 'none';
+                    // Save current canvas state before changing symbol
+                    saveCanvasState();
                     // Update expiry dates for selected symbol with valid dates only
                     allExpiries = filterValidExpiries(symbolData[selectedSymbol] || []);
                     const newExpiry = allExpiries[0] || '';
@@ -581,6 +611,8 @@
                     const selectedExpiry = filteredExpiries[expirySelectedIndex];
                     this.value = selectedExpiry;
                     dropdown.style.display = 'none';
+                    // Save current canvas state before changing expiry
+                    saveCanvasState();
                     // Update active expiry IMMEDIATELY for data rendering
                     activeExpiry = selectedExpiry;
                     // Update immediately
@@ -628,6 +660,8 @@
                 div.onclick = () => {
                     document.getElementById('strikeInput').value = strike;
                     dropdown.style.display = 'none';
+                    // Save current canvas state
+                    saveCanvasState();
                     // Update active strike count IMMEDIATELY
                     activeStrikeCount = strike;
                     // Update immediately
@@ -667,6 +701,9 @@
         function updateData() {
             // Validate required parameters
             if (!activeSymbol || !activeExpiry) return;
+            
+            // Save canvas state before data refresh
+            saveCanvasState();
             
             const requestId = ++currentRequestId;
             const requestSymbol = activeSymbol;
@@ -757,6 +794,9 @@
                     
                     // Apply Greeks column visibility based on checkbox state
                     toggleGreeksColumns();
+                    
+                    // Restore canvas state after data refresh
+                    setTimeout(() => restoreCanvasState(), 50);
                     
                     // Ensure table is visible
                     document.querySelector('table').classList.add('ready');
@@ -907,5 +947,104 @@
                 updateData();
             }
         }, 1000);
+        
+        // ========== DRAWING TOOLS ==========
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let currentTool = null;
+        let currentColor = '#ff0000';
+        let canvasStates = {}; // Store canvas states per symbol-expiry-strike
+        
+        // Setup canvas
+        function setupCanvas() {
+            const container = document.getElementById('optionchain-container');
+            canvas.width = container.scrollWidth;
+            canvas.height = container.scrollHeight;
+        }
+        setupCanvas();
+        window.addEventListener('resize', setupCanvas);
+        
+        // Tool selection
+        document.getElementById('penTool').addEventListener('click', () => selectTool('pen'));
+        document.getElementById('pencilTool').addEventListener('click', () => selectTool('pencil'));
+        document.getElementById('eraserTool').addEventListener('click', () => selectTool('eraser'));
+        document.getElementById('colorPicker').addEventListener('change', (e) => currentColor = e.target.value);
+        document.getElementById('clearCanvas').addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+        
+        function selectTool(tool) {
+            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tool + 'Tool').classList.add('active');
+            currentTool = tool;
+            canvas.classList.add('drawing');
+        }
+        
+        // Drawing events
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        function startDrawing(e) {
+            if (!currentTool) return;
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+        
+        function draw(e) {
+            if (!isDrawing || !currentTool) return;
+            const rect = canvas.getBoundingClientRect();
+            
+            if (currentTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = 20;
+            } else {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = currentTool === 'pen' ? 3 : 1;
+            }
+            
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        }
+        
+        function stopDrawing() {
+            isDrawing = false;
+        }
+        
+        // Canvas state management
+        function getStateKey() {
+            return `${activeSymbol}-${activeExpiry}-${activeStrikeCount}`;
+        }
+        
+        function saveCanvasState() {
+            const key = getStateKey();
+            canvasStates[key] = canvas.toDataURL();
+        }
+        
+        function restoreCanvasState() {
+            const key = getStateKey();
+            if (canvasStates[key]) {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = canvasStates[key];
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+        
+        // Disable drawing when clicking outside toolbar
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.drawing-toolbar') && !e.target.closest('#drawingCanvas')) {
+                document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+                currentTool = null;
+                canvas.classList.remove('drawing');
+            }
+        });
     </script>
 {% endblock %}
