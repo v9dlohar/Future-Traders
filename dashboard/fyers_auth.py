@@ -23,42 +23,24 @@ print(f"Debug: FYERS credentials loaded - client_id={bool(client_id)}, secret_ke
 if not client_id or not secret_key or not redirect_uri:
     raise ValueError(f'Environment variables not loaded. Check .env file at {env_path}')
 
-# Stored tokens - these will be updated when new tokens are generated
-STORED_ACCESS_TOKEN = None
-STORED_REFRESH_TOKEN = None
-
 # Ensure credentials are set
 if not client_id or not secret_key or not redirect_uri:
     raise ValueError('FYERS credentials not configured')
 
 def save_tokens(access_token, refresh_token):
-    global STORED_ACCESS_TOKEN, STORED_REFRESH_TOKEN
-    STORED_ACCESS_TOKEN = access_token
-    STORED_REFRESH_TOKEN = refresh_token
-    
-    # Also update the file with new token values
-    update_tokens_in_file(access_token, refresh_token)
+    from .models import FyersToken
+    token, created = FyersToken.objects.get_or_create(id=1)
+    token.access_token = access_token
+    token.refresh_token = refresh_token
+    token.save()
 
 def load_tokens():
-    global STORED_ACCESS_TOKEN, STORED_REFRESH_TOKEN
-    if STORED_ACCESS_TOKEN and STORED_REFRESH_TOKEN:
-        return {'access_token': STORED_ACCESS_TOKEN, 'refresh_token': STORED_REFRESH_TOKEN}
-    return None
-
-def update_tokens_in_file(access_token, refresh_token):
-    """Update the token variables in this file"""
-    import re
-    
-    file_path = __file__
-    with open(file_path, 'r') as f:
-        content = f.read()
-    
-    # Update tokens in file
-    content = re.sub(r'STORED_ACCESS_TOKEN = .*', f'STORED_ACCESS_TOKEN = "{access_token}"', content)
-    content = re.sub(r'STORED_REFRESH_TOKEN = .*', f'STORED_REFRESH_TOKEN = "{refresh_token}"', content)
-    
-    with open(file_path, 'w') as f:
-        f.write(content)
+    from .models import FyersToken
+    try:
+        token = FyersToken.objects.get(id=1)
+        return {'access_token': token.access_token, 'refresh_token': token.refresh_token}
+    except FyersToken.DoesNotExist:
+        return None
 
 def refresh_access_token(refresh_token):
     try:
@@ -68,11 +50,7 @@ def refresh_access_token(refresh_token):
         app_id_hash = os.getenv('FYERS_APP_ID_HASH')
         pin = os.getenv('FYERS_PIN')
         
-        print(f"Refresh token method: app_id_hash={bool(app_id_hash)}, pin={bool(pin)}")
-        print(f"Using refresh token: {refresh_token}")
-        
         if not app_id_hash or not pin:
-            print("Missing FYERS_APP_ID_HASH or FYERS_PIN environment variables")
             return None
         
         url = "https://api-t1.fyers.in/api/v3/validate-refresh-token"
@@ -87,31 +65,16 @@ def refresh_access_token(refresh_token):
         
         response = requests.post(url, headers=headers, data=json.dumps(payload))
         
-        print("Status Code:", response.status_code)
-        print("Response JSON:", response.json())
-        
         if response.status_code == 200:
             result = response.json()
             if result.get('code') == 200:
                 new_access_token = result.get('access_token')
                 if new_access_token:
-                    print("✅ Refresh token method WORKING - New access token generated")
                     save_tokens(new_access_token, refresh_token)
                     return new_access_token
-                else:
-                    print("❌ Refresh token method FAILED - No access token in response")
-            else:
-                error_code = result.get('code')
-                if error_code == -1009:
-                    print("❌ Refresh token EXPIRED - Need fresh authentication (15 days expired)")
-                else:
-                    print(f"❌ Refresh token method FAILED - API error code: {error_code}")
-        else:
-            print(f"❌ Refresh token method FAILED - HTTP error: {response.status_code}")
         
         return None
     except Exception as e:
-        print(f"❌ Refresh token method FAILED - Exception: {e}")
         return None
 
 def is_token_valid(access_token):
