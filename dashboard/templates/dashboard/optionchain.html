@@ -62,8 +62,9 @@
         .strike-price { background: #f6f8fa !important; color: #9a6700 !important; font-weight: 800; font-size: 13px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .positive { color: #1a7f37; font-weight: 700; }
         .negative { color: #cf222e; font-weight: 700; }
-        .highlight-max { background: rgba(5, 150, 105, 0.3) !important; }
-        .highlight-75 { background: rgba(251, 191, 36, 0.3) !important; }
+        .highlight-max { background: #9dc209 !important; color: #000 !important; border-radius: 4px !important; }
+        .highlight-75 { background: #ffff00 !important; color: #000 !important; border-radius: 4px !important; }
+        .highlight-max small, .highlight-75 small { color: #000 !important; font-weight: 800 !important; }
         .ltp-line { border-top: 2px solid #0969da; background: linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.2), transparent); position: relative; }
         .ltp-line::after { content: attr(data-ltp); position: absolute; left: 50%; top: -11px; transform: translateX(-50%); background: linear-gradient(135deg, #0969da 0%, #2563eb 50%, #1d4ed8 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(9, 105, 218, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; }
         .volume-bar { height: 3px; background: #e9ecef; border-radius: 2px; margin-top: 4px; overflow: hidden; }
@@ -265,14 +266,14 @@
             
             // Map Greek names to their column indices in the table (0-indexed)
             // Format: [CALL column index, PUT column index]
-            // CALL: LTP CH, IV, GAMMA, THETA, VEGA, DELTA, LTP
-            // PUT: LTP, DELTA, VEGA, THETA, GAMMA, IV, LTP CH
+            // CALL: OI CH, OI, VOLUME, LTP CH, IV, GAMMA, THETA, VEGA, DELTA, LTP
+            // PUT: LTP, DELTA, VEGA, THETA, GAMMA, IV, LTP CH, VOLUME, OI, OI CH
             const greekColumns = {
-                'IV': [6, 18],      // Implied Volatility columns
-                'GAMMA': [7, 17],   // Gamma columns
-                'THETA': [8, 16],   // Theta columns
-                'VEGA': [9, 15],    // Vega columns
-                'DELTA': [10, 14]   // Delta columns
+                'IV': [4, 16],      // Implied Volatility columns
+                'GAMMA': [5, 15],   // Gamma columns
+                'THETA': [6, 14],   // Theta columns
+                'VEGA': [7, 13],    // Vega columns
+                'DELTA': [8, 12]    // Delta columns
             };
             
             // Map Greek names to their CSS class names for data cells
@@ -710,7 +711,7 @@
                             <td class="call-data call-oi">${formatIndian(row.CALL_OI)}<br><small style="color: #666; font-size: 10px;">${row.CALL_PMCOI}%</small></td>
                             <td class="call-data call-volume">${formatIndian(row.CALL_VOLUME)}<br><small style="color: #666; font-size: 10px;">${row.CALL_PMCV}%</small></td>
                             <td class="call-data ${row.CALL_LTPCH >= 0 ? 'positive' : 'negative'}">${row.CALL_LTPCH}</td>
-                            <td class="call-data greek-iv">${row.CALL_IV}%</td>
+                            <td class="call-data greek-iv">${row.CALL_IV}</td>
                             <td class="call-data greek-gamma">${row.CALL_GAMMA}</td>
                             <td class="call-data greek-theta">${row.CALL_THETA}</td>
                             <td class="call-data greek-vega">${row.CALL_VEGA}</td>
@@ -722,7 +723,7 @@
                             <td class="put-data greek-vega">${row.PUT_VEGA}</td>
                             <td class="put-data greek-theta">${row.PUT_THETA}</td>
                             <td class="put-data greek-gamma">${row.PUT_GAMMA}</td>
-                            <td class="put-data greek-iv">${row.PUT_IV}%</td>
+                            <td class="put-data greek-iv">${row.PUT_IV}</td>
                             <td class="put-data ${row.PUT_LTPCH >= 0 ? 'positive' : 'negative'}">${row.PUT_LTPCH}</td>
                             <td class="put-data put-volume">${formatIndian(row.PUT_VOLUME)}<br><small style="color: #666; font-size: 10px;">${row.PUT_PMPV}%</small></td>
                             <td class="put-data put-oi">${formatIndian(row.PUT_OI)}<br><small style="color: #666; font-size: 10px;">${row.PUT_PMPOI}%</small></td>
@@ -846,25 +847,30 @@
                 }
             });
             
-            // Highlight OI and Volume cells with 75%+ percentage
-            const percentageColumns = {
-                'call-oi': 'CALL_PMCOI',
-                'call-volume': 'CALL_PMCV',
-                'put-oi': 'PUT_PMPOI',
-                'put-volume': 'PUT_PMPV'
-            };
+            // Highlight second highest OI and Volume with 75%+ percentage
+            const oiVolumeColumns = ['call-oi', 'call-volume', 'put-oi', 'put-volume'];
             
-            Object.keys(percentageColumns).forEach(column => {
+            oiVolumeColumns.forEach(column => {
                 const cells = document.querySelectorAll(`.${column}`);
+                const cellData = [];
+                
                 cells.forEach((cell, index) => {
+                    const value = parseFloat(cell.textContent.replace(/[,%]/g, ''));
                     const smallText = cell.querySelector('small');
-                    if (smallText) {
-                        const percentage = parseFloat(smallText.textContent.replace('%', ''));
-                        if (percentage >= 75 && !cell.classList.contains('highlight-max')) {
-                            cell.classList.add('highlight-75');
-                        }
-                    }
+                    const percentage = smallText ? parseFloat(smallText.textContent.replace('%', '')) : 0;
+                    cellData.push({ cell, value, percentage, index });
                 });
+                
+                // Sort by value descending to find second highest
+                cellData.sort((a, b) => b.value - a.value);
+                
+                // Highlight second highest if it has 75%+ percentage and is not already max highlighted
+                if (cellData.length > 1) {
+                    const secondHighest = cellData[1];
+                    if (secondHighest.percentage >= 75 && !secondHighest.cell.classList.contains('highlight-max')) {
+                        secondHighest.cell.classList.add('highlight-75');
+                    }
+                }
             });
         }
         
