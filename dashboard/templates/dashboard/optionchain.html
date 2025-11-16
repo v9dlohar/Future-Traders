@@ -31,14 +31,9 @@
         .ltp-value { font-size: 18px; font-weight: 800; color: #1a7f37; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .table-container { background: #ffffff; margin: 0; overflow-x: auto; height: calc(100vh - 80px); overflow-y: auto; position: sticky; top: 80px; transition: all 0.3s ease; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; }
-        th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 100; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
-        td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 16px; line-height: 1.1; }
-        td small { display: block; margin-top: 4px; line-height: 1; }
-        .call-oi small, .call-volume small, .put-oi small, .put-volume small { margin-top: 6px; }
-        tbody tr:hover { background: #fef3e2; }
-        tbody tr:hover .itm-call, tbody tr:hover .itm-put { background: #fef3e2 !important; }
-        tbody tr:hover .highlight-max { background: #adff2f !important; }
-        tbody tr:hover .highlight-75 { background: #ffff00 !important; }
+        th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
+        td { padding: 8px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 12px; transition: background 0.2s; }
+        tbody tr:hover { background: #e2e8f0; }
         .calls-header { background: #016B61 !important; color: #ffffff !important; transition: all 0.3s ease; }
         .puts-header { background: #F25912 !important; color: #ffffff !important; transition: all 0.3s ease; }
         .strike-header { background: #f59e0b !important; color: #ffffff !important; transition: all 0.3s ease; }
@@ -64,21 +59,18 @@
         }
         .call-data { color: #1a7f37; font-weight: 500; }
         .put-data { color: #1a7f37; font-weight: 500; }
-        .strike-price { background: #e5e7eb !important; color: #9a6700 !important; font-weight: 800; font-size: 16px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+        .strike-price { background: #f6f8fa !important; color: #9a6700 !important; font-weight: 800; font-size: 13px; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .positive { color: #1a7f37; font-weight: 700; }
         .negative { color: #cf222e; font-weight: 700; }
-        .highlight-max { background: #adff2f !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 1; }
-        .highlight-75 { background: #ffff00 !important; color: #000 !important; border-radius: 4px !important; position: relative; z-index: 10 !important; border: 2px solid #ffd700 !important; }
+        .highlight-max { background: #9dc209 !important; color: #000 !important; border-radius: 4px !important; }
+        .highlight-75 { background: #ffff00 !important; color: #000 !important; border-radius: 4px !important; }
         .highlight-max small, .highlight-75 small { color: #000 !important; font-weight: normal !important; }
-        /* .itm-call { background: #f3f4f6 !important; }
-        .itm-put { background: #f3f4f6 !important; } */
+        .itm-call { background: #f3f4f6 !important; }
+        .itm-put { background: #f3f4f6 !important; }
         .ltp-line { border-top: 2px solid #0969da; background: linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.2), transparent); position: relative; }
         .ltp-line::after { content: attr(data-ltp); position: absolute; left: 50%; top: -11px; transform: translateX(-50%); background: linear-gradient(135deg, #0969da 0%, #2563eb 50%, #1d4ed8 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(9, 105, 218, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; }
         .volume-bar { height: 3px; background: #e9ecef; border-radius: 2px; margin-top: 4px; overflow: hidden; }
         .volume-fill { height: 100%; background: linear-gradient(90deg, #0969da, #2563eb); border-radius: 2px; transition: width 0.3s; }
-        /* Hide unchecked Greeks by default */
-        .greek-iv, .greek-gamma, .greek-theta, .greek-vega { display: none; }
-        thead tr:nth-child(2) th:nth-child(4), thead tr:nth-child(2) th:nth-child(5), thead tr:nth-child(2) th:nth-child(6), thead tr:nth-child(2) th:nth-child(7), thead tr:nth-child(2) th:nth-child(13), thead tr:nth-child(2) th:nth-child(14), thead tr:nth-child(2) th:nth-child(15), thead tr:nth-child(2) th:nth-child(16) { display: none; }
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .container { padding: 5px; }
@@ -172,9 +164,9 @@
         <table>
             <thead>
                 <tr>
-                    <th colspan="5" class="calls-header">CALLS</th>
+                    <th colspan="10" class="calls-header">CALLS</th>
                     <th class="strike-header">STRIKE</th>
-                    <th colspan="5" class="puts-header">PUTS</th>
+                    <th colspan="10" class="puts-header">PUTS</th>
                 </tr>
                 <tr>
                     <th class="calls-header">OI CH</th>
@@ -228,8 +220,8 @@
         let strikeOptions = [8, 10, 15, 20];  // Available strike count options
         
         // Greeks visibility state - tracks which Greek columns are visible
-        // By default only Delta is checked
-        let selectedGreeks = {
+        // Load from localStorage or use defaults
+        let selectedGreeks = JSON.parse(localStorage.getItem('selectedGreeks')) || {
             'IV': false,
             'DELTA': true,
             'GAMMA': false,
@@ -244,22 +236,27 @@
         // Setup event listeners for Greeks visibility checkboxes
         document.getElementById('ivCheck').addEventListener('change', function() {
             selectedGreeks['IV'] = this.checked;
+            localStorage.setItem('selectedGreeks', JSON.stringify(selectedGreeks));
             toggleGreeksColumns();  // Show/hide IV columns
         });
         document.getElementById('deltaCheck').addEventListener('change', function() {
             selectedGreeks['DELTA'] = this.checked;
+            localStorage.setItem('selectedGreeks', JSON.stringify(selectedGreeks));
             toggleGreeksColumns();  // Show/hide Delta columns
         });
         document.getElementById('gammaCheck').addEventListener('change', function() {
             selectedGreeks['GAMMA'] = this.checked;
+            localStorage.setItem('selectedGreeks', JSON.stringify(selectedGreeks));
             toggleGreeksColumns();  // Show/hide Gamma columns
         });
         document.getElementById('thetaCheck').addEventListener('change', function() {
             selectedGreeks['THETA'] = this.checked;
+            localStorage.setItem('selectedGreeks', JSON.stringify(selectedGreeks));
             toggleGreeksColumns();  // Show/hide Theta columns
         });
         document.getElementById('vegaCheck').addEventListener('change', function() {
             selectedGreeks['VEGA'] = this.checked;
+            localStorage.setItem('selectedGreeks', JSON.stringify(selectedGreeks));
             toggleGreeksColumns();  // Show/hide Vega columns
         });
         
@@ -368,6 +365,17 @@
                 // Set initial active values
                 activeSymbol = 'NSE:NIFTY50-INDEX';
                 activeExpiry = allExpiries[0] || '';
+                
+                // Restore checkbox states from localStorage
+                document.getElementById('ivCheck').checked = selectedGreeks['IV'];
+                document.getElementById('deltaCheck').checked = selectedGreeks['DELTA'];
+                document.getElementById('gammaCheck').checked = selectedGreeks['GAMMA'];
+                document.getElementById('thetaCheck').checked = selectedGreeks['THETA'];
+                document.getElementById('vegaCheck').checked = selectedGreeks['VEGA'];
+                
+                // Apply Greek column visibility
+                toggleGreeksColumns();
+                
                 // Load initial data
                 setTimeout(() => {
                     updateData();
@@ -868,7 +876,7 @@
                 cells.forEach((cell, index) => {
                     const value = parseFloat(cell.textContent.replace(/[,%]/g, ''));
                     const smallText = cell.querySelector('small');
-                    const percentage = smallText ? parseFloat(smallText.textContent.replace(/[()%]/g, '')) : 0;
+                    const percentage = smallText ? parseFloat(smallText.textContent.replace('%', '')) : 0;
                     cellData.push({ cell, value, percentage, index });
                 });
                 
