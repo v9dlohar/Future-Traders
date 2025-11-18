@@ -69,8 +69,8 @@
         td small { line-height: 1; margin-top: 0; }
         
         /* Overlay Marking Tool */
-        .mark-overlay-root { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
-        .mark-overlay-canvas { position: absolute; top: 0; left: 0; }
+        .mark-overlay-root { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5; pointer-events: none; }
+        .mark-overlay-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .mark-toolbar {
             display: flex; gap: 8px; align-items: center;
             background: rgba(25,25,30,0.9); color: #fff; padding: 8px; border-radius: 10px;
@@ -221,10 +221,6 @@
 
         
         <div class="table-container" id="optionchain-container" style="position: relative;">
-            <!-- Overlay Marking Tool -->
-            <div id="mark-overlay" class="mark-overlay-root" aria-hidden="true">
-                <canvas id="mark-canvas" class="mark-overlay-canvas"></canvas>
-            </div>
         <table>
             <thead>
                 <tr>
@@ -258,6 +254,10 @@
 
             </tbody>
             </table>
+            <!-- Overlay Marking Tool -->
+            <div id="mark-overlay" class="mark-overlay-root" aria-hidden="true">
+                <canvas id="mark-canvas" class="mark-overlay-canvas"></canvas>
+            </div>
         </div>
     </div>
 
@@ -399,13 +399,21 @@
          * @returns {Array} - Filtered array with only future dates
          */
         function filterValidExpiries(expiries) {
+            const now = new Date();
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+            today.setHours(0, 0, 0, 0);
+            
             return expiries.filter(expiry => {
                 const [day, month, year] = expiry.split('-');
                 const expiryDate = new Date(year, month - 1, day);
-                expiryDate.setHours(0, 0, 0, 0); // Set to start of day
-                return expiryDate >= today;  // Keep only future dates
+                expiryDate.setHours(0, 0, 0, 0);
+                
+                // If expiry is today and current time is after 4:00 PM, exclude it
+                if (expiryDate.getTime() === today.getTime()) {
+                    return now.getHours() < 16; // Show only before 4:00 PM
+                }
+                
+                return expiryDate > today; // Keep only future dates
             });
         }
         
@@ -830,15 +838,13 @@
                     // Apply Greeks column visibility based on checkbox state
                     toggleGreeksColumns();
                     
-                    // Resize canvas and load markings for this symbol
-                    setTimeout(() => {
-                        if (window.MarkOverlay) {
-                            window.MarkOverlay.loadSymbolState();
-                        }
-                    }, 50);
-                    
                     // Ensure table is visible
                     document.querySelector('table').classList.add('ready');
+                    
+                    // Load markings for this symbol after table is ready
+                    if (window.MarkOverlay) {
+                        window.MarkOverlay.loadSymbolState();
+                    }
                     
                     // Add LTP line after table is rebuilt
                     if (result.quote_data && result.quote_data.ltp) {
@@ -1057,24 +1063,19 @@
                 const container = document.getElementById('optionchain-container');
                 const table = container.querySelector('table');
                 
-                let width = container.clientWidth;
-                let height = container.scrollHeight;
+                if (!table) return;
                 
-                if (table) {
-                    width = Math.max(width, table.scrollWidth);
-                    height = Math.max(height, table.scrollHeight);
-                }
+                const containerRect = container.getBoundingClientRect();
+                const tableRect = table.getBoundingClientRect();
                 
-                // Only resize if dimensions changed
-                if (canvas.style.width === width + 'px' && canvas.style.height === height + 'px') return;
+                const width = Math.max(container.scrollWidth, table.scrollWidth, containerRect.width);
+                const height = Math.max(container.scrollHeight, table.scrollHeight, containerRect.height);
                 
                 const dpr = Math.max(1, window.devicePixelRatio || 1);
                 canvas.width = width * dpr;
                 canvas.height = height * dpr;
                 canvas.style.width = width + 'px';
                 canvas.style.height = height + 'px';
-                overlay.style.width = width + 'px';
-                overlay.style.height = height + 'px';
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 redrawAll();
             }
@@ -1161,6 +1162,7 @@
                 imgSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 pathPoints = [{ x, y }];
                 e.preventDefault();
+                e.stopPropagation();
             });
         
             overlay.addEventListener('pointermove', e => {
@@ -1170,6 +1172,7 @@
                 drawPreview(startX, startY, x, y);
                 pathPoints.push({ x, y });
                 e.preventDefault();
+                e.stopPropagation();
             });
         
             const endDraw = e => {
@@ -1403,10 +1406,20 @@
             
             // Initialize
             overlay.style.pointerEvents = 'auto';
+            overlay.style.userSelect = 'none';
+            overlay.style.webkitUserSelect = 'none';
+            overlay.style.msUserSelect = 'none';
             resizeCanvas();
             
-            // Load initial state
-            setTimeout(() => loadSymbolState(), 50);
+            // Load initial state after table is ready
+            const checkTable = () => {
+                if (document.querySelector('table.ready')) {
+                    loadSymbolState();
+                } else {
+                    setTimeout(checkTable, 10);
+                }
+            };
+            checkTable();
         
             // Optional: export/import JSON
             window.MarkOverlay = {
