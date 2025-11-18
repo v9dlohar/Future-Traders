@@ -124,153 +124,29 @@
         font-size: 14px; 
     }
     
-    .pricing-offer {
+    .pricing-section {
         margin-top: 30px;
         padding: 25px;
-        background: linear-gradient(135deg, #ff6b35, #f7931e, #ff6b35);
-        background-size: 200% 200%;
+        background: #f8f9fa;
         border-radius: 15px;
-        color: white;
-        box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4), 0 0 40px rgba(255, 107, 53, 0.3);
-        animation: gradientShift 3s ease infinite, glow 2s ease-in-out infinite;
-        position: relative;
-        overflow: hidden;
+        color: #333;
+        border: 2px solid #e9ecef;
     }
     
-    .pricing-offer::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        animation: shine 3s infinite;
-    }
-    
-    @keyframes gradientShift {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-    
-    @keyframes glow {
-        0%, 100% { box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4), 0 0 40px rgba(255, 107, 53, 0.3); }
-        50% { box-shadow: 0 10px 40px rgba(255, 107, 53, 0.6), 0 0 60px rgba(255, 107, 53, 0.5); }
-    }
-    
-    @keyframes shine {
-        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-    }
-    
-    @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-    
-    .pricing-offer h3 {
-        font-size: 26px;
+    .pricing-section h3 {
+        font-size: 24px;
         margin-bottom: 15px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        position: relative;
-        z-index: 1;
-        font-weight: 800;
-        animation: flashText 1.5s infinite;
+        font-weight: 600;
+        color: #333;
     }
     
-    @keyframes flashText {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.9; transform: scale(1.05); }
-    }
-    
-    .pricing-plans {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        margin-top: 15px;
-        position: relative;
-        z-index: 1;
-    }
-    
-    .plan {
-        background: rgba(255, 255, 255, 0.25);
-        padding: 15px 25px;
-        border-radius: 10px;
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        transition: all 0.3s ease;
-    }
-    
-    .plan:hover {
-        transform: scale(1.05);
-        background: rgba(255, 255, 255, 0.35);
-        border-color: rgba(255, 255, 255, 0.6);
-    }
-    
-    .plan-price {
+    .price {
         font-size: 28px;
         font-weight: 800;
-        margin: 5px 0;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        color: #ff6b35;
     }
     
-    .plan-label {
-        font-size: 14px;
-        opacity: 0.95;
-    }
-    
-    .offer-badge {
-        display: inline-block;
-        background: #dc3545;
-        padding: 8px 20px;
-        border-radius: 25px;
-        font-size: 14px;
-        font-weight: 700;
-        margin-bottom: 10px;
-        animation: flashBadge 1s infinite;
-        box-shadow: 0 0 20px rgba(220, 53, 69, 0.8);
-        position: relative;
-        z-index: 1;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    
-    @keyframes flashBadge {
-        0%, 100% { 
-            background: #dc3545;
-            transform: scale(1);
-            box-shadow: 0 0 20px rgba(220, 53, 69, 0.8);
-        }
-        50% { 
-            background: #ff1744;
-            transform: scale(1.1);
-            box-shadow: 0 0 30px rgba(255, 23, 68, 1);
-        }
-    }
-    
-    .offer-expiry {
-        font-size: 15px;
-        margin-top: 15px;
-        font-weight: 700;
-        position: relative;
-        z-index: 1;
-        animation: urgentBlink 1s infinite;
-        background: rgba(220, 53, 69, 0.3);
-        padding: 8px 15px;
-        border-radius: 8px;
-        display: inline-block;
-    }
-    
-    @keyframes urgentBlink {
-        0%, 100% { 
-            opacity: 1;
-            background: rgba(220, 53, 69, 0.3);
-        }
-        50% { 
-            opacity: 0.7;
-            background: rgba(255, 23, 68, 0.5);
-        }
-    }
+
 </style>
 {% endblock %}
 
@@ -286,22 +162,9 @@
             <a href="{% url 'login' %}" class="login-btn">Login to Dashboard</a>
         {% endif %}
         
-        <div class="pricing-offer">
-            <span class="offer-badge">⚡ FLASH SALE</span>
-            <h3>🔥 Limited Time Offer 🔥</h3>
-            <div class="pricing-plans">
-                <div class="plan">
-                    <div class="plan-label">Monthly</div>
-                    <div class="plan-price">₹300</div>
-                    <div class="plan-label">per month</div>
-                </div>
-                <div class="plan">
-                    <div class="plan-label">Annual</div>
-                    <div class="plan-price">₹3,000</div>
-                    <div class="plan-label">per year</div>
-                </div>
-            </div>
-            <div class="offer-expiry">⏰ Offer expires on 10-11-2025</div>
+        <div class="pricing-section">
+            <h3>Pricing</h3>
+            <div class="price">₹300 per month</div>
         </div>
         
         <div class="features">
