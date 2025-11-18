@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); color: #1e293b; line-height: 1.6; }
         .container { padding: 0; width: 100%; max-width: 100%; }
-        .header { background: #f6f8fa; border-bottom: 1px solid #d0d7de; padding: 4px 4px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .header { background: #f6f8fa; border-bottom: 1px solid #d0d7de; padding: 4px 4px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 1000; overflow: visible; }
         .header h2 { color: #24292f; font-size: 18px; font-weight: 600; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .controls { display: flex; gap: 12px; align-items: center; margin-top: 8px; }
         .control-group { position: relative; }
@@ -24,7 +24,7 @@
         .dropdown div { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #d0d7de; font-size: 14px; color: #24292f; transition: background 0.2s; }
         .dropdown div:hover { background-color: #f6f8fa; }
         .dropdown div:last-child { border-bottom: none; }
-        .market-info { background: #f6f8fa; padding: 8px 24px; border-bottom: 1px solid #d0d7de; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+        .market-info { background: #f6f8fa; padding: 8px 24px; border-bottom: 1px solid #d0d7de; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; position: sticky; top: 80px; z-index: 999; }
         .symbol-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; min-width: 0; }
         .symbol-name { font-size: 16px; font-weight: 700; color: #24292f; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .ltp-info { display: flex; align-items: center; gap: 8px; }
@@ -68,20 +68,34 @@
         .highlight-max small, .highlight-75 small { color: #000 !important; font-weight: normal !important; }
         td small { line-height: 1; margin-top: 0; }
         
-        /* Drawing Tools */
-        .drawing-toolbar { position: fixed; top: 50%; right: 20px; transform: translateY(-50%); background: rgba(255,255,255,0.95); border-radius: 12px; padding: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
-        .tool-btn { width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all 0.2s; }
-        .tool-btn:hover { transform: scale(1.1); }
-        .tool-btn.active { background: #3b82f6; color: white; }
-        .pen-btn { background: #10b981; color: white; }
-        .pencil-btn { background: #f59e0b; color: white; }
-        .eraser-btn { background: #ef4444; color: white; }
-        .color-picker { width: 40px; height: 40px; border: none; border-radius: 8px; cursor: pointer; }
-        .clear-btn { background: #6b7280; color: white; }
-        
-        /* Drawing Canvas */
-        #drawingCanvas { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 999; }
-        #drawingCanvas.drawing { pointer-events: all; }
+        /* Overlay Marking Tool */
+        .mark-overlay-root { position: absolute; inset: 0; z-index: 2147483647; pointer-events: none; }
+        .mark-overlay-canvas { position: absolute; inset: 0; }
+        .mark-toolbar {
+            display: flex; gap: 8px; align-items: center;
+            background: rgba(25,25,30,0.9); color: #fff; padding: 8px; border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.32); font: 13px/1.4 system-ui, sans-serif;
+            transition: all 0.3s ease; user-select: none; pointer-events: auto; z-index: 1010;
+        }
+        .mark-toolbar.dragging { transition: none; }
+        .mark-toolbar.collapsed { width: 48px; height: 48px; overflow: hidden; pointer-events: none; background: transparent; box-shadow: none; padding: 0; }
+        .mark-toolbar.collapsed #marker-icon { pointer-events: auto; background: rgba(25,25,30,0.9); box-shadow: 0 8px 24px rgba(0,0,0,0.32); }
+        .mark-toolbar.collapsed .mark-row { display: none; }
+        .mark-toolbar:not(.collapsed) #marker-icon { display: none; }
+        .mark-toolbar.expand-left { transform-origin: right center; }
+        .mark-toolbar.dragging { transition: none; }
+        #marker-icon { cursor: move; }
+        .mark-btn { pointer-events: auto; background: #2b2b33; border: 1px solid #3a3a44; color: #eee;
+            padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+        .mark-btn.active { background: #4a68ff; border-color: #4a68ff; color: #fff; }
+        .mark-color { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
+        .mark-row { display: flex; gap: 6px; align-items: center; }
+        .mark-sep { width: 1px; height: 22px; background: #4b4b54; margin: 0 6px; }
+        .mark-hidden { display: none !important; }
+        .mark-text-input {
+            position: absolute; color: #fff; background: transparent; border: 1px dashed #aaa;
+            outline: none; padding: 2px 4px; font: 16px/1.3 system-ui, sans-serif; z-index: 2147483649;
+        }
 
         .ltp-line { border-top: 2px solid #0969da; background: linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.2), transparent); position: relative; }
         .ltp-line::after { content: attr(data-ltp); position: absolute; left: 50%; top: -11px; transform: translateX(-50%); background: linear-gradient(135deg, #0969da 0%, #2563eb 50%, #1d4ed8 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(9, 105, 218, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; }
@@ -141,6 +155,32 @@
                 </div>
 
             </div>
+            
+            <!-- Overlay Marking Tool Toolbar -->
+            <div id="mark-toolbar" class="mark-toolbar collapsed" role="toolbar" aria-label="Markup tools" style="position: absolute; top: 8px; right: 8px; z-index: 1001; cursor: move;">
+                <button class="mark-btn" id="marker-icon">🖊️</button>
+                <div class="mark-row">
+                    <button class="mark-btn" data-tool="pen">✏️</button>
+                    <button class="mark-btn" data-tool="highlighter">🖍️</button>
+                    <button class="mark-btn" data-tool="arrow">↗️</button>
+                    <button class="mark-btn" data-tool="rect">⬜</button>
+                    <button class="mark-btn" data-tool="ellipse">⭕</button>
+                    <button class="mark-btn" data-tool="text">📝</button>
+                    <button class="mark-btn" data-tool="eraser">🧽</button>
+                    <span class="mark-sep"></span>
+                    <label class="mark-row" style="gap:4px;color:#ccc;">Size
+                        <input id="mark-size" type="range" min="2" max="40" value="6" style="pointer-events:auto;">
+                    </label>
+                    <span class="mark-sep"></span>
+                    <div class="mark-row" id="mark-colors"></div>
+                    <span class="mark-sep"></span>
+                    <button class="mark-btn" id="mark-undo">↶</button>
+                    <button class="mark-btn" id="mark-redo">↷</button>
+                    <button class="mark-btn" id="mark-clear">🗑️</button>
+                    <button class="mark-btn" id="mark-shot">📷</button>
+                    <button class="mark-btn" id="mark-toggle">👁️</button>
+                </div>
+            </div>
         </div>
         <div class="market-info">
             <div class="symbol-info">
@@ -176,18 +216,15 @@
                 </div>
             </div>
         </div>
-        <!-- Drawing Tools -->
-        <div class="drawing-toolbar">
-            <button class="tool-btn pen-btn" id="penTool" title="Pen">🖊️</button>
-            <button class="tool-btn pencil-btn" id="pencilTool" title="Pencil">✏️</button>
-            <button class="tool-btn eraser-btn" id="eraserTool" title="Eraser">🧽</button>
-            <input type="color" class="color-picker" id="colorPicker" value="#ff0000" title="Color">
-            <button class="tool-btn clear-btn" id="clearCanvas" title="Clear All">🗑️</button>
-        </div>
+
+        
+
         
         <div class="table-container" id="optionchain-container" style="position: relative;">
-            <!-- Drawing Canvas -->
-            <canvas id="drawingCanvas"></canvas>
+            <!-- Overlay Marking Tool -->
+            <div id="mark-overlay" class="mark-overlay-root" aria-hidden="true">
+                <canvas id="mark-canvas" class="mark-overlay-canvas"></canvas>
+            </div>
         <table>
             <thead>
                 <tr>
@@ -224,6 +261,7 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="{% static 'dashboard/optionchain.js' %}"></script>
     <script>
         // ========== GLOBAL VARIABLES ==========
@@ -489,8 +527,7 @@
                     allExpiries = filterValidExpiries(symbolData[symbol] || []);
                     const newExpiry = allExpiries[0] || '';
                     document.getElementById('expiryInput').value = newExpiry;
-                    // Save current canvas state
-                    saveCanvasState();
+
                     // Update active values IMMEDIATELY for data rendering
                     activeSymbol = symbol;
                     activeExpiry = newExpiry;
@@ -562,8 +599,7 @@
                     const selectedSymbol = filteredSymbols[selectedIndex];
                     this.value = selectedSymbol;
                     dropdown.style.display = 'none';
-                    // Save current canvas state before changing symbol
-                    saveCanvasState();
+
                     // Update expiry dates for selected symbol with valid dates only
                     allExpiries = filterValidExpiries(symbolData[selectedSymbol] || []);
                     const newExpiry = allExpiries[0] || '';
@@ -613,8 +649,7 @@
                     const selectedExpiry = filteredExpiries[expirySelectedIndex];
                     this.value = selectedExpiry;
                     dropdown.style.display = 'none';
-                    // Save current canvas state before changing expiry
-                    saveCanvasState();
+
                     // Update active expiry IMMEDIATELY for data rendering
                     activeExpiry = selectedExpiry;
                     // Update immediately
@@ -662,8 +697,7 @@
                 div.onclick = () => {
                     document.getElementById('strikeInput').value = strike;
                     dropdown.style.display = 'none';
-                    // Save current canvas state
-                    saveCanvasState();
+
                     // Update active strike count IMMEDIATELY
                     activeStrikeCount = strike;
                     // Update immediately
@@ -704,8 +738,7 @@
             // Validate required parameters
             if (!activeSymbol || !activeExpiry) return;
             
-            // Save canvas state before data refresh
-            saveCanvasState();
+
             
             const requestId = ++currentRequestId;
             const requestSymbol = activeSymbol;
@@ -797,8 +830,10 @@
                     // Apply Greeks column visibility based on checkbox state
                     toggleGreeksColumns();
                     
-                    // Restore canvas state after data refresh
-                    setTimeout(() => restoreCanvasState(), 50);
+                    // Load markings for this symbol
+                    setTimeout(() => {
+                        if (window.MarkOverlay) window.MarkOverlay.loadSymbolState();
+                    }, 100);
                     
                     // Ensure table is visible
                     document.querySelector('table').classList.add('ready');
@@ -950,103 +985,415 @@
             }
         }, 1000);
         
-        // ========== DRAWING TOOLS ==========
-        const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let currentTool = null;
-        let currentColor = '#ff0000';
-        let canvasStates = {}; // Store canvas states per symbol-expiry-strike
+        // ========== OVERLAY MARKING TOOL ==========
+        (function() {
+            const overlay = document.getElementById('mark-overlay');
+            const toolbar = document.getElementById('mark-toolbar');
+            const canvas = document.getElementById('mark-canvas');
+            const ctx = canvas.getContext('2d');
         
-        // Setup canvas
-        function setupCanvas() {
-            const container = document.getElementById('optionchain-container');
-            canvas.width = container.scrollWidth;
-            canvas.height = container.scrollHeight;
-        }
-        setupCanvas();
-        window.addEventListener('resize', setupCanvas);
+            // State
+            let tool = 'pen';
+            let strokeColor = '#ff4757';
+            let strokeSize = 6;
+            let drawing = false;
+            let startX = 0, startY = 0;
+            let imgSnapshot = null;
+            let pathPoints = [];
+            const actions = []; // history stack
+            const undone = [];
         
-        // Tool selection
-        document.getElementById('penTool').addEventListener('click', () => selectTool('pen'));
-        document.getElementById('pencilTool').addEventListener('click', () => selectTool('pencil'));
-        document.getElementById('eraserTool').addEventListener('click', () => selectTool('eraser'));
-        document.getElementById('colorPicker').addEventListener('change', (e) => currentColor = e.target.value);
-        document.getElementById('clearCanvas').addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
-        
-        function selectTool(tool) {
-            document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tool + 'Tool').classList.add('active');
-            currentTool = tool;
-            canvas.classList.add('drawing');
-        }
-        
-        // Drawing events
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseout', stopDrawing);
-        
-        function startDrawing(e) {
-            if (!currentTool) return;
-            isDrawing = true;
-            const rect = canvas.getBoundingClientRect();
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        }
-        
-        function draw(e) {
-            if (!isDrawing || !currentTool) return;
-            const rect = canvas.getBoundingClientRect();
-            
-            if (currentTool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out';
-                ctx.lineWidth = 20;
-            } else {
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.strokeStyle = currentColor;
-                ctx.lineWidth = currentTool === 'pen' ? 3 : 1;
+            // Colors palette
+            const COLORS = ['#ff4757','#2ed573','#1e90ff','#ffa502','#a55eea','#e84118','#f1f2f6','#2f3542','#00d2d3'];
+            const colorsEl = document.getElementById('mark-colors');
+            COLORS.forEach(c => {
+                const sw = document.createElement('div');
+                sw.className = 'mark-color';
+                sw.style.background = c;
+                sw.title = c;
+                sw.addEventListener('click', () => { strokeColor = c; updateActiveColor(); });
+                colorsEl.appendChild(sw);
+            });
+            function updateActiveColor() {
+                [...colorsEl.children].forEach(el => el.style.boxShadow = el.style.background === strokeColor ? '0 0 0 3px rgba(255,255,255,0.6)' : '');
             }
+            updateActiveColor();
+        
+            // Tools UI
+            const toolBtns = [...toolbar.querySelectorAll('[data-tool]')];
+            toolBtns.forEach(btn => btn.addEventListener('click', () => {
+                setTool(btn.dataset.tool);
+                toolbar.classList.add('collapsed');
+            }));
+            function setTool(t) {
+                tool = t;
+                toolBtns.forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+            }
+            setTool('pen');
             
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke();
-        }
+            // Expand on click
+            document.getElementById('marker-icon').addEventListener('click', e => {
+                e.stopPropagation();
+                toolbar.classList.remove('collapsed');
+            });
+            
+            // Auto-collapse when clicking outside
+            document.addEventListener('click', e => {
+                if (!toolbar.contains(e.target)) {
+                    toolbar.classList.add('collapsed');
+                }
+            });
+            
+
         
-        function stopDrawing() {
-            isDrawing = false;
-        }
+            // Size
+            const sizeEl = document.getElementById('mark-size');
+            sizeEl.addEventListener('input', e => strokeSize = +e.target.value);
         
-        // Canvas state management
-        function getStateKey() {
-            return `${activeSymbol}-${activeExpiry}-${activeStrikeCount}`;
-        }
+            // Resize canvas to device pixels
+            function resizeCanvas() {
+                const dpr = Math.max(1, window.devicePixelRatio || 1);
+                const container = document.getElementById('optionchain-container');
+                const width = container.scrollWidth;
+                const height = container.scrollHeight;
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                redrawAll();
+            }
+            window.addEventListener('resize', resizeCanvas);
         
-        function saveCanvasState() {
-            const key = getStateKey();
-            canvasStates[key] = canvas.toDataURL();
-        }
+            // History
+            function pushAction(action) {
+                actions.push(action);
+                undone.length = 0;
+            }
+            function undo() {
+                if (!actions.length) return;
+                undone.push(actions.pop());
+                redrawAll();
+            }
+            function redo() {
+                if (!undone.length) return;
+                actions.push(undone.pop());
+                redrawAll();
+            }
+            document.getElementById('mark-undo').onclick = undo;
+            document.getElementById('mark-redo').onclick = redo;
         
-        function restoreCanvasState() {
-            const key = getStateKey();
-            if (canvasStates[key]) {
-                const img = new Image();
-                img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                };
-                img.src = canvasStates[key];
-            } else {
+            // Clear
+            document.getElementById('mark-clear').onclick = () => {
+                actions.length = 0; undone.length = 0; redrawAll();
+            };
+        
+            // Screenshot
+            document.getElementById('mark-shot').onclick = () => {
+                const container = document.getElementById('optionchain-container');
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                tempCanvas.width = container.scrollWidth;
+                tempCanvas.height = container.scrollHeight;
+                
+                // Capture page content using html2canvas
+                html2canvas(container, {
+                    canvas: tempCanvas,
+                    useCORS: true,
+                    allowTaint: true,
+                    scale: 1
+                }).then(pageCanvas => {
+                    // Draw markings on top
+                    tempCtx.drawImage(canvas, 0, 0);
+                    
+                    const url = tempCanvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = url; a.download = 'optionchain-markup.png'; a.click();
+                }).catch(() => {
+                    // Fallback to markings only
+                    const url = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = url; a.download = 'markup.png'; a.click();
+                });
+            };
+        
+            // Toggle visibility / pointer-events
+            document.getElementById('mark-toggle').onclick = () => {
+                const hidden = overlay.classList.toggle('mark-hidden');
+                toolbar.querySelector('#mark-toggle').textContent = hidden ? 'Show' : 'Hide';
+                overlay.style.pointerEvents = hidden ? 'none' : 'auto';
+            };
+        
+            // Pointer handling
+            function getPos(e) {
+                const r = canvas.getBoundingClientRect();
+                const x = (e.clientX - r.left);
+                const y = (e.clientY - r.top);
+                return { x, y };
+            }
+        
+            overlay.addEventListener('pointerdown', e => {
+                if (e.button !== 0) return;
+                overlay.style.pointerEvents = 'auto';
+                drawing = true;
+                const { x, y } = getPos(e);
+                startX = x; startY = y;
+                imgSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                pathPoints = [{ x, y }];
+                e.preventDefault();
+            });
+        
+            overlay.addEventListener('pointermove', e => {
+                if (!drawing) return;
+                const { x, y } = getPos(e);
+                ctx.putImageData(imgSnapshot, 0, 0);
+                drawPreview(startX, startY, x, y);
+                pathPoints.push({ x, y });
+                e.preventDefault();
+            });
+        
+            const endDraw = e => {
+                if (!drawing) return;
+                drawing = false;
+                const { x, y } = getPos(e);
+                ctx.putImageData(imgSnapshot, 0, 0);
+                const action = finalizeDraw(startX, startY, x, y, pathPoints.slice());
+                if (action) pushAction(action);
+                redrawAll();
+                imgSnapshot = null; pathPoints = [];
+            };
+            overlay.addEventListener('pointerup', endDraw);
+            overlay.addEventListener('pointerleave', endDraw);
+        
+            // Text input
+            function createTextInput(x, y) {
+                const input = document.createElement('input');
+                input.className = 'mark-text-input';
+                input.style.left = x + 'px'; input.style.top = y + 'px';
+                document.body.appendChild(input);
+                input.focus();
+                input.addEventListener('keydown', ev => {
+                    if (ev.key === 'Enter') {
+                        const text = input.value.trim();
+                        document.body.removeChild(input);
+                        if (text) {
+                            pushAction({ type: 'text', x, y, text, color: strokeColor, size: strokeSize });
+                            redrawAll();
+                        }
+                    } else if (ev.key === 'Escape') {
+                        document.body.removeChild(input);
+                    }
+                });
+            }
+        
+            // Drawing primitives
+            function setStroke(isHighlight=false) {
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineWidth = strokeSize;
+                ctx.strokeStyle = isHighlight ? hexWithAlpha(strokeColor, 0.35) : strokeColor;
+                ctx.fillStyle = ctx.strokeStyle;
+            }
+            function hexWithAlpha(hex, alpha) {
+                // convert hex to rgba string
+                const c = hex.replace('#','');
+                const bigint = parseInt(c, 16);
+                const r = (bigint >> 16) & 255, g = (bigint >> 8) & 255, b = bigint & 255;
+                return `rgba(${r},${g},${b},${alpha})`;
+            }
+        
+            function drawPreview(x0, y0, x1, y1) {
+                switch (tool) {
+                    case 'pen':
+                    case 'highlighter':
+                        setStroke(tool==='highlighter');
+                        ctx.beginPath();
+                        ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                        for (let i = 1; i < pathPoints.length; i++) ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                        ctx.lineTo(x1, y1);
+                        ctx.stroke();
+                        break;
+                    case 'rect':
+                        setStroke(); ctx.strokeRect(x0, y0, x1-x0, y1-y0);
+                        break;
+                    case 'ellipse':
+                        setStroke(); drawEllipse(x0, y0, x1, y1);
+                        break;
+                    case 'arrow':
+                        setStroke(); drawArrow(x0, y0, x1, y1);
+                        break;
+                    case 'eraser':
+                        ctx.save();
+                        ctx.globalCompositeOperation = 'destination-out';
+                        ctx.lineWidth = strokeSize;
+                        ctx.beginPath();
+                        ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
+                        for (let i = 1; i < pathPoints.length; i++) ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
+                        ctx.lineTo(x1, y1);
+                        ctx.stroke();
+                        ctx.restore();
+                        break;
+                    case 'text':
+                        // preview handled by input; ignore
+                        break;
+                }
+            }
+        
+            function finalizeDraw(x0, y0, x1, y1, points) {
+                if (tool === 'text') { createTextInput(x1, y1); return null; }
+                const action = { type: tool, color: strokeColor, size: strokeSize, x0, y0, x1, y1, points };
+                return action;
+            }
+        
+            function drawEllipse(x0, y0, x1, y1) {
+                const rx = Math.abs(x1 - x0) / 2, ry = Math.abs(y1 - y0) / 2;
+                const cx = Math.min(x0, x1) + rx, cy = Math.min(y0, y1) + ry;
+                ctx.beginPath();
+                ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI*2);
+                ctx.stroke();
+            }
+        
+            function drawArrow(x0, y0, x1, y1) {
+                const headLen = Math.max(10, strokeSize * 2.2);
+                const dx = x1 - x0, dy = y1 - y0;
+                const angle = Math.atan2(dy, dx);
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(x1, y1);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x1 - headLen * Math.cos(angle - Math.PI/6), y1 - headLen * Math.sin(angle - Math.PI/6));
+                ctx.lineTo(x1 - headLen * Math.cos(angle + Math.PI/6), y1 - headLen * Math.sin(angle + Math.PI/6));
+                ctx.lineTo(x1, y1);
+                ctx.stroke();
+            }
+        
+            function redrawAll() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (const a of actions) {
+                    if (a.type === 'text') {
+                        ctx.save();
+                        ctx.fillStyle = a.color;
+                        ctx.font = `${Math.max(12, a.size*3)}px system-ui, sans-serif`;
+                        ctx.textBaseline = 'top';
+                        ctx.fillText(a.text, a.x, a.y);
+                        ctx.restore();
+                        continue;
+                    }
+                    if (a.type === 'eraser-stroke') {
+                        ctx.save(); ctx.globalCompositeOperation = 'destination-out';
+                    } else {
+                        setStroke(a.type==='highlighter');
+                        ctx.lineWidth = a.size; ctx.strokeStyle = a.type==='highlighter' ? hexWithAlpha(a.color, 0.35) : a.color;
+                    }
+                    switch (a.type) {
+                        case 'pen':
+                        case 'highlighter':
+                            ctx.beginPath();
+                            ctx.moveTo(a.points[0].x, a.points[0].y);
+                            for (let i = 1; i < a.points.length; i++) ctx.lineTo(a.points[i].x, a.points[i].y);
+                            ctx.stroke();
+                            break;
+                        case 'rect':
+                            ctx.strokeRect(a.x0, a.y0, a.x1 - a.x0, a.y1 - a.y0);
+                            break;
+                        case 'ellipse':
+                            drawEllipse(a.x0, a.y0, a.x1, a.y1);
+                            break;
+                        case 'arrow':
+                            drawArrow(a.x0, a.y0, a.x1, a.y1);
+                            break;
+                        case 'eraser':
+                            ctx.beginPath();
+                            ctx.moveTo(a.points[0].x, a.points[0].y);
+                            for (let i = 1; i < a.points.length; i++) ctx.lineTo(a.points[i].x, a.points[i].y);
+                            ctx.stroke();
+                            break;
+                    }
+                    if (a.type === 'eraser-stroke') ctx.restore();
+                }
             }
-        }
         
-        // Disable drawing when clicking outside toolbar
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.drawing-toolbar') && !e.target.closest('#drawingCanvas')) {
-                document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-                currentTool = null;
-                canvas.classList.remove('drawing');
+            // Hotkeys
+            window.addEventListener('keydown', e => {
+                if (e.altKey || e.ctrlKey || e.metaKey) return;
+                switch (e.key.toLowerCase()) {
+                    case 'p': setTool('pen'); break;
+                    case 'h': setTool('highlighter'); break;
+                    case 'a': setTool('arrow'); break;
+                    case 'r': setTool('rect'); break;
+                    case 'e': setTool('ellipse'); break;
+                    case 't': setTool('text'); break;
+                    case 'x': setTool('eraser'); break;
+                    case 'z': if (e.shiftKey) redo(); else undo(); break;
+                    case 'k': document.getElementById('mark-toggle').click(); break; // hide/show
+                }
+            });
+        
+            // Symbol-specific state management
+            let symbolStates = JSON.parse(localStorage.getItem('symbolMarkings')) || {};
+            
+            function getStateKey() {
+                return `${activeSymbol}-${activeExpiry}-${activeStrikeCount}`;
             }
-        });
+            
+            function saveSymbolState() {
+                const key = getStateKey();
+                symbolStates[key] = JSON.stringify(actions);
+                localStorage.setItem('symbolMarkings', JSON.stringify(symbolStates));
+            }
+            
+            function loadSymbolState() {
+                const key = getStateKey();
+                if (symbolStates[key]) {
+                    try {
+                        const savedActions = JSON.parse(symbolStates[key]);
+                        actions.length = 0;
+                        actions.push(...savedActions);
+                        undone.length = 0;
+                        redrawAll();
+                    } catch(e) {}
+                } else {
+                    actions.length = 0;
+                    undone.length = 0;
+                    redrawAll();
+                }
+            }
+            
+            // Save state when actions change
+            const originalPushAction = pushAction;
+            pushAction = function(action) {
+                originalPushAction(action);
+                saveSymbolState();
+            };
+            
+            const originalUndo = undo;
+            undo = function() {
+                originalUndo();
+                saveSymbolState();
+            };
+            
+            const originalRedo = redo;
+            redo = function() {
+                originalRedo();
+                saveSymbolState();
+            };
+            
+            // Initialize
+            overlay.style.pointerEvents = 'auto';
+            resizeCanvas();
+            
+            // Load initial state
+            setTimeout(() => loadSymbolState(), 100);
+        
+            // Optional: export/import JSON
+            window.MarkOverlay = {
+                export() { return JSON.stringify(actions); },
+                import(json) { try { const arr = JSON.parse(json); actions.length = 0; undone.length = 0; actions.push(...arr); redrawAll(); saveSymbolState(); } catch(e) {} },
+                loadSymbolState: loadSymbolState
+            };
+        })();
     </script>
 {% endblock %}
