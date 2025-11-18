@@ -99,6 +99,35 @@
             position: absolute; color: #fff; background: transparent; border: 1px dashed #aaa;
             outline: none; padding: 2px 4px; font: 16px/1.3 system-ui, sans-serif; z-index: 2147483649;
         }
+        
+        /* Feature Popup */
+        .feature-popup {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            z-index: 10000; max-width: 400px; width: 90%;
+        }
+        .popup-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999;
+        }
+        .popup-title {
+            font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .popup-content {
+            color: #64748b; line-height: 1.6; margin-bottom: 20px;
+        }
+        .popup-features {
+            list-style: none; padding: 0; margin: 16px 0;
+        }
+        .popup-features li {
+            padding: 8px 0; display: flex; align-items: center; gap: 8px;
+            color: #475569;
+        }
+        .popup-btn {
+            background: #3b82f6; color: #fff; border: none; padding: 12px 24px;
+            border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;
+        }
+        .popup-btn:hover { background: #2563eb; }
 
         .ltp-line { border-top: 2px solid #0969da; background: linear-gradient(90deg, transparent, rgba(9, 105, 218, 0.2), transparent); position: relative; }
         .ltp-line::after { content: attr(data-ltp); position: absolute; left: 50%; top: -11px; transform: translateX(-50%); background: linear-gradient(135deg, #0969da 0%, #2563eb 50%, #1d4ed8 100%); color: white; padding: 2px 8px; font-size: 9px; font-weight: 600; border-radius: 4px; box-shadow: 0 2px 8px rgba(9, 105, 218, 0.4), 0 1px 3px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.5px; }
@@ -458,6 +487,9 @@
                 
                 // Show table after proper initialization
                 document.querySelector('table').classList.add('ready');
+                
+                // Show feature popup on every page load
+                setTimeout(() => showFeaturePopup(), 1000);
                 
                 // Load initial data
                 setTimeout(() => {
@@ -1077,7 +1109,11 @@
                 
                 overlay.style.cursor = cursors[t] || 'crosshair';
             }
-            setTool('pen');
+            
+            // Initialize with no tool selected (disabled by default)
+            tool = null;
+            document.getElementById('deselect-tool').classList.add('active');
+            overlay.style.cursor = 'default';
             
             // Expand on click
             document.getElementById('marker-icon').addEventListener('click', e => {
@@ -1493,5 +1529,37 @@
                 loadSymbolState: loadSymbolState
             };
         })();
+        
+        // Feature popup function
+        function showFeaturePopup() {
+            const overlay = document.createElement('div');
+            overlay.className = 'popup-overlay';
+            
+            const popup = document.createElement('div');
+            popup.className = 'feature-popup';
+            popup.innerHTML = `
+                <div class="popup-title">
+                    🎨 Drawing Tool Introduced!
+                </div>
+                <div class="popup-content">
+                    Mark and annotate your option chain data with our new drawing tools.
+                </div>
+                <ul class="popup-features">
+                    <li>✏️ Multiple drawing tools (pen, highlighter, shapes)</li>
+                    <li>💾 Markings saved by symbol, expiry & strike count</li>
+                    <li>👤 Personal markings (not visible to other users)</li>
+                    <li>⌨️ Keyboard shortcuts for quick access</li>
+                </ul>
+                <button class="popup-btn" onclick="closeFeaturePopup()">Got it!</button>
+            `;
+            
+            document.body.appendChild(overlay);
+            document.body.appendChild(popup);
+        }
+        
+        function closeFeaturePopup() {
+            document.querySelector('.popup-overlay')?.remove();
+            document.querySelector('.feature-popup')?.remove();
+        }
     </script>
 {% endblock %}
