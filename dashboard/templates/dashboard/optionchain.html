@@ -69,8 +69,8 @@
         td small { line-height: 1; margin-top: 0; }
         
         /* Overlay Marking Tool */
-        .mark-overlay-root { position: absolute; inset: 0; z-index: 2147483647; pointer-events: none; }
-        .mark-overlay-canvas { position: absolute; inset: 0; }
+        .mark-overlay-root { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+        .mark-overlay-canvas { position: absolute; top: 0; left: 0; }
         .mark-toolbar {
             display: flex; gap: 8px; align-items: center;
             background: rgba(25,25,30,0.9); color: #fff; padding: 8px; border-radius: 10px;
@@ -833,10 +833,9 @@
                     // Resize canvas and load markings for this symbol
                     setTimeout(() => {
                         if (window.MarkOverlay) {
-                            resizeCanvas();
                             window.MarkOverlay.loadSymbolState();
                         }
-                    }, 200);
+                    }, 50);
                     
                     // Ensure table is visible
                     document.querySelector('table').classList.add('ready');
@@ -1055,15 +1054,27 @@
         
             // Resize canvas to device pixels
             function resizeCanvas() {
-                const dpr = Math.max(1, window.devicePixelRatio || 1);
                 const container = document.getElementById('optionchain-container');
                 const table = container.querySelector('table');
-                const width = Math.max(container.scrollWidth, table ? table.offsetWidth : 0);
-                const height = Math.max(container.scrollHeight, table ? table.offsetHeight : 0);
+                
+                let width = container.clientWidth;
+                let height = container.scrollHeight;
+                
+                if (table) {
+                    width = Math.max(width, table.scrollWidth);
+                    height = Math.max(height, table.scrollHeight);
+                }
+                
+                // Only resize if dimensions changed
+                if (canvas.style.width === width + 'px' && canvas.style.height === height + 'px') return;
+                
+                const dpr = Math.max(1, window.devicePixelRatio || 1);
                 canvas.width = width * dpr;
                 canvas.height = height * dpr;
                 canvas.style.width = width + 'px';
                 canvas.style.height = height + 'px';
+                overlay.style.width = width + 'px';
+                overlay.style.height = height + 'px';
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 redrawAll();
             }
@@ -1093,7 +1104,7 @@
                 // Remove saved state for current symbol
                 const key = getStateKey();
                 delete symbolStates[key];
-                localStorage.setItem('symbolMarkings', JSON.stringify(symbolStates));
+                localStorage.setItem(storageKey, JSON.stringify(symbolStates));
             };
         
             // Screenshot
@@ -1340,8 +1351,10 @@
                 }
             });
         
-            // Symbol-specific state management
-            let symbolStates = JSON.parse(localStorage.getItem('symbolMarkings')) || {};
+            // User and symbol-specific state management
+            const userId = '{{ user.id }}';
+            const storageKey = `symbolMarkings_${userId}`;
+            let symbolStates = JSON.parse(localStorage.getItem(storageKey)) || {};
             
             function getStateKey() {
                 return `${activeSymbol}-${activeExpiry}-${activeStrikeCount}`;
@@ -1350,7 +1363,7 @@
             function saveSymbolState() {
                 const key = getStateKey();
                 symbolStates[key] = JSON.stringify(actions);
-                localStorage.setItem('symbolMarkings', JSON.stringify(symbolStates));
+                localStorage.setItem(storageKey, JSON.stringify(symbolStates));
             }
             
             function loadSymbolState() {
@@ -1393,7 +1406,7 @@
             resizeCanvas();
             
             // Load initial state
-            setTimeout(() => loadSymbolState(), 100);
+            setTimeout(() => loadSymbolState(), 50);
         
             // Optional: export/import JSON
             window.MarkOverlay = {
