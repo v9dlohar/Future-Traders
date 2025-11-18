@@ -137,7 +137,10 @@ def fyers_callback_view(request):
     if auth_code:
         try:
             generate_tokens_from_auth_code(auth_code)
+            # Clear cache and reset fyers instance
             cache.clear()
+            from .data import reset_fyers_instance
+            reset_fyers_instance()
             return redirect('optionchain')
         except Exception as e:
             print(f"Error in Fyers callback: {e}")
