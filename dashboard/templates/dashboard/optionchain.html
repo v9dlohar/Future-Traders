@@ -131,7 +131,7 @@
                 </div>
                 <div class="control-group">
                     <label>Expiry Date</label>
-                    <input type="text" id="expiryInput" value="18-11-2025" placeholder="Search expiry..." autocomplete="off">
+                    <input type="text" id="expiryInput" value="20-10-2025" placeholder="Search expiry..." autocomplete="off">
                     <div id="expiryDropdown" class="dropdown"></div>
                 </div>
                 <div class="control-group">
@@ -362,9 +362,11 @@
          */
         function filterValidExpiries(expiries) {
             const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
             return expiries.filter(expiry => {
                 const [day, month, year] = expiry.split('-');
                 const expiryDate = new Date(year, month - 1, day);
+                expiryDate.setHours(0, 0, 0, 0); // Set to start of day
                 return expiryDate >= today;  // Keep only future dates
             });
         }
