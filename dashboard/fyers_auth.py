@@ -107,8 +107,10 @@ def get_valid_access_token():
 def login_fyers():
     access_token = get_valid_access_token()
     if not access_token:
+        print("No valid access token available")
         return None
     
+    print(f"Using access token: {access_token[:20]}...")
     fyers = fyersModel.FyersModel(client_id=client_id, is_async=False, token=access_token, log_path="")
     return fyers
 
