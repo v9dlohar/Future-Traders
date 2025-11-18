@@ -830,10 +830,13 @@
                     // Apply Greeks column visibility based on checkbox state
                     toggleGreeksColumns();
                     
-                    // Load markings for this symbol
+                    // Resize canvas and load markings for this symbol
                     setTimeout(() => {
-                        if (window.MarkOverlay) window.MarkOverlay.loadSymbolState();
-                    }, 100);
+                        if (window.MarkOverlay) {
+                            resizeCanvas();
+                            window.MarkOverlay.loadSymbolState();
+                        }
+                    }, 200);
                     
                     // Ensure table is visible
                     document.querySelector('table').classList.add('ready');
@@ -1054,8 +1057,9 @@
             function resizeCanvas() {
                 const dpr = Math.max(1, window.devicePixelRatio || 1);
                 const container = document.getElementById('optionchain-container');
-                const width = container.scrollWidth;
-                const height = container.scrollHeight;
+                const table = container.querySelector('table');
+                const width = Math.max(container.scrollWidth, table ? table.offsetWidth : 0);
+                const height = Math.max(container.scrollHeight, table ? table.offsetHeight : 0);
                 canvas.width = width * dpr;
                 canvas.height = height * dpr;
                 canvas.style.width = width + 'px';
@@ -1086,6 +1090,10 @@
             // Clear
             document.getElementById('mark-clear').onclick = () => {
                 actions.length = 0; undone.length = 0; redrawAll();
+                // Remove saved state for current symbol
+                const key = getStateKey();
+                delete symbolStates[key];
+                localStorage.setItem('symbolMarkings', JSON.stringify(symbolStates));
             };
         
             // Screenshot
@@ -1347,18 +1355,17 @@
             
             function loadSymbolState() {
                 const key = getStateKey();
+                // Always clear first
+                actions.length = 0;
+                undone.length = 0;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
                 if (symbolStates[key]) {
                     try {
                         const savedActions = JSON.parse(symbolStates[key]);
-                        actions.length = 0;
                         actions.push(...savedActions);
-                        undone.length = 0;
                         redrawAll();
                     } catch(e) {}
-                } else {
-                    actions.length = 0;
-                    undone.length = 0;
-                    redrawAll();
                 }
             }
             
