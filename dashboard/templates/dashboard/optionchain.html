@@ -300,6 +300,7 @@
         
         // Request management
         let currentRequestId = 0;         // Track latest request to prevent race conditions
+        let currentController = null;     // AbortController for cancelling requests
         
         // ========== GREEKS CHECKBOX LISTENERS ==========
         // Setup event listeners for Greeks visibility checkboxes
@@ -728,6 +729,11 @@
          * Trigger immediate data update (called when user changes selection)
          */
         function immediateUpdate() {
+            // Cancel previous request immediately
+            if (currentController) {
+                currentController.abort();
+                currentController = null;
+            }
             showLoadingState();
             currentRequestId++;  // Increment to cancel any pending requests
             updateData();
@@ -757,12 +763,15 @@
             const requestExpiry = activeExpiry;
             const requestStrike = activeStrikeCount;
             
-            // Add timeout for faster response
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            // Cancel previous request and create new controller
+            if (currentController) {
+                currentController.abort();
+            }
+            currentController = new AbortController();
+            const timeoutId = setTimeout(() => currentController.abort(), 5000);
             
             fetch(`{% url "get_live_data" %}?symbol=${activeSymbol}&expiry=${activeExpiry}&strikecount=${activeStrikeCount}`, {
-                signal: controller.signal
+                signal: currentController.signal
             })
                 .then(response => {
                     if (!response.ok) {
@@ -888,6 +897,9 @@
                 })
                 .finally(() => {
                     clearTimeout(timeoutId);
+                    if (currentController && !currentController.signal.aborted) {
+                        currentController = null;
+                    }
                 });
         }
         
@@ -1093,21 +1105,38 @@
                 
                 if (!table) return;
                 
-                const containerRect = container.getBoundingClientRect();
-                const tableRect = table.getBoundingClientRect();
+                // Get actual table dimensions including all rows
+                const tbody = table.querySelector('tbody');
+                const tableHeight = tbody ? tbody.offsetHeight + 100 : table.offsetHeight;
                 
-                const width = Math.max(container.scrollWidth, table.scrollWidth, containerRect.width);
-                const height = Math.max(container.scrollHeight, table.scrollHeight, containerRect.height);
+                // Force canvas to cover maximum possible area
+                const width = Math.max(container.scrollWidth, table.offsetWidth, window.innerWidth);
+                const height = Math.max(container.scrollHeight, tableHeight, window.innerHeight);
                 
                 const dpr = Math.max(1, window.devicePixelRatio || 1);
                 canvas.width = width * dpr;
                 canvas.height = height * dpr;
                 canvas.style.width = width + 'px';
                 canvas.style.height = height + 'px';
+                
+                // Ensure overlay covers full area
+                overlay.style.width = width + 'px';
+                overlay.style.height = height + 'px';
+                
                 ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
                 redrawAll();
             }
             window.addEventListener('resize', resizeCanvas);
+            
+            // Resize when table content changes
+            const observer = new MutationObserver(() => {
+                setTimeout(resizeCanvas, 50);
+            });
+            
+            const tableContainer = document.getElementById('optionchain-container');
+            if (tableContainer) {
+                observer.observe(tableContainer, { childList: true, subtree: true });
+            }
         
             // History
             function pushAction(action) {
@@ -1439,7 +1468,13 @@
             overlay.style.userSelect = 'none';
             overlay.style.webkitUserSelect = 'none';
             overlay.style.msUserSelect = 'none';
-            resizeCanvas();
+            
+            // Force initial resize after DOM is ready
+            setTimeout(() => {
+                resizeCanvas();
+                // Resize again after table data loads
+                setTimeout(resizeCanvas, 100);
+            }, 10);
             
             // Load initial state after table is ready
             const checkTable = () => {
