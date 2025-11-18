@@ -18,6 +18,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 fyers = None
 data_cache = {}
 
+def reset_fyers_instance():
+    global fyers
+    fyers = None
+    print("Fyers instance reset")
+
 
 
 def get_lot_size(symbol):
@@ -128,11 +133,18 @@ def get_mock_data(symbol):
 def get_symbol_quote(symbol):
     global fyers
     try:
-        if not fyers:
-            fyers = login_fyers()
+        # Always get fresh fyers instance
+        fyers = login_fyers()
         
         if fyers:
             quote_response = fyers.quotes({"symbols": symbol})
+            
+            # If token expired, try refresh
+            if quote_response and quote_response.get('code') in [401, 403]:
+                print("Quote token expired, refreshing...")
+                fyers = login_fyers()
+                if fyers:
+                    quote_response = fyers.quotes({"symbols": symbol})
             if quote_response and quote_response.get('code') == 200:
                 quote_data = quote_response.get('d', [{}])[0]
                 ltp = quote_data.get('v', {}).get('lp', 0)
@@ -179,8 +191,10 @@ def getLiveData(symbol=None, expiry=None, strikecount=None):
         if cache_key in data_cache and (current_time - data_cache[cache_key]['timestamp']) < 2:
             return data_cache[cache_key]['data'], data_cache[cache_key]['quote_data'], data_cache[cache_key].get('pcr', 0)
         
+        # Always try to get fresh fyers instance with valid token
+        fyers = login_fyers()
         if not fyers:
-            fyers = login_fyers()
+            print("Failed to get valid Fyers instance")
         
         if fyers:
             data = {
@@ -191,6 +205,16 @@ def getLiveData(symbol=None, expiry=None, strikecount=None):
             
             response = fyers.optionchain(data=data)
             print(f"🔍 API Response Code: {response.get('code') if response else 'None'}")
+            
+            # If token expired, reset fyers and try again
+            if response and response.get('code') in [401, 403]:
+                print("Token expired, trying to refresh...")
+                fyers = None  # Reset global fyers instance
+                fyers = login_fyers()
+                if fyers:
+                    response = fyers.optionchain(data=data)
+                    print(f"🔍 Retry API Response Code: {response.get('code') if response else 'None'}")
+            
             print(f"🔍 API Response: {response}")
             
             if response and response.get('code') == 200 and response.get('data', {}).get('optionsChain'):
