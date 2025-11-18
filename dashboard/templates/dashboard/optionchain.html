@@ -34,7 +34,10 @@
         table.ready { visibility: visible; }
         th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
         td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 12px; transition: background 0.2s; line-height: 1.2; }
-        tbody tr:hover { background: #e2e8f0; }
+        tbody tr:hover:not(.drawing-active) { background: #e2e8f0; }
+        .drawing-mode tbody tr { pointer-events: none; }
+        .drawing-mode tbody tr:hover { background: transparent !important; }
+        .drawing-mode .highlight-max, .drawing-mode .highlight-75 { opacity: 0.7; }
         .calls-header { background: #016B61 !important; color: #ffffff !important; transition: all 0.3s ease; }
         .puts-header { background: #F25912 !important; color: #ffffff !important; transition: all 0.3s ease; }
         .strike-header { background: #f59e0b !important; color: #ffffff !important; transition: all 0.3s ease; }
@@ -69,8 +72,8 @@
         td small { line-height: 1; margin-top: 0; }
         
         /* Overlay Marking Tool */
-        .mark-overlay-root { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5; pointer-events: none; }
-        .mark-overlay-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .mark-overlay-root { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 15; pointer-events: none; }
+        .mark-overlay-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 15; }
         .mark-toolbar {
             display: flex; gap: 8px; align-items: center;
             background: rgba(25,25,30,0.9); color: #fff; padding: 8px; border-radius: 10px;
@@ -167,6 +170,7 @@
                     <button class="mark-btn" data-tool="ellipse">⭕</button>
                     <button class="mark-btn" data-tool="text">📝</button>
                     <button class="mark-btn" data-tool="eraser">🧽</button>
+                    <button class="mark-btn" id="deselect-tool">👆</button>
                     <span class="mark-sep"></span>
                     <label class="mark-row" style="gap:4px;color:#ccc;">Size
                         <input id="mark-size" type="range" min="2" max="40" value="6" style="pointer-events:auto;">
@@ -1033,9 +1037,33 @@
                 setTool(btn.dataset.tool);
                 toolbar.classList.add('collapsed');
             }));
+            
+            // Deselect tool
+            document.getElementById('deselect-tool').addEventListener('click', () => {
+                tool = null;
+                toolBtns.forEach(b => b.classList.remove('active'));
+                document.getElementById('deselect-tool').classList.add('active');
+                overlay.style.cursor = 'default';
+                toolbar.classList.add('collapsed');
+            });
+            
             function setTool(t) {
                 tool = t;
                 toolBtns.forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+                document.getElementById('deselect-tool').classList.remove('active');
+                
+                // Set tool-specific cursor
+                const cursors = {
+                    'pen': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M13.5 0a.5.5 0 0 1 .5.5V2l-.5-.5L9.5 5.5 8 4 11.5.5a.5.5 0 0 1 .5-.5zM7 5L2 10v4h4l5-5-4-4z\' fill=\'%23000\'/%3E%3C/svg%3E") 0 16, auto',
+                    'highlighter': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M11.5 15a.5.5 0 0 0 .5-.5V2.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h7z\' fill=\'%23ffff00\'/%3E%3C/svg%3E") 8 16, auto',
+                    'arrow': 'crosshair',
+                    'rect': 'crosshair',
+                    'ellipse': 'crosshair',
+                    'text': 'text',
+                    'eraser': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879z\' fill=\'%23ff69b4\'/%3E%3C/svg%3E") 8 8, auto'
+                };
+                
+                overlay.style.cursor = cursors[t] || 'crosshair';
             }
             setTool('pen');
             
@@ -1154,8 +1182,9 @@
             }
         
             overlay.addEventListener('pointerdown', e => {
-                if (e.button !== 0) return;
+                if (e.button !== 0 || !tool) return;
                 overlay.style.pointerEvents = 'auto';
+                document.getElementById('optionchain-container').classList.add('drawing-mode');
                 drawing = true;
                 const { x, y } = getPos(e);
                 startX = x; startY = y;
@@ -1178,6 +1207,7 @@
             const endDraw = e => {
                 if (!drawing) return;
                 drawing = false;
+                document.getElementById('optionchain-container').classList.remove('drawing-mode');
                 const { x, y } = getPos(e);
                 ctx.putImageData(imgSnapshot, 0, 0);
                 const action = finalizeDraw(startX, startY, x, y, pathPoints.slice());
