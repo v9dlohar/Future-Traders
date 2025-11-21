@@ -845,16 +845,16 @@
                         return;
                     }
                     
-                    // Populate table rows with option chain data
+                    // Populate table rows with option chain data using DocumentFragment for performance
                     const spotPrice = result.quote_data ? result.quote_data.ltp : 0;
+                    const fragment = document.createDocumentFragment();
+                    
                     result.data.forEach(row => {
                         const tr = document.createElement('tr');
                         const strikePrice = parseFloat(row.STRIKE_PRICE);
                         const isCallITM = strikePrice < spotPrice;
                         const isPutITM = strikePrice > spotPrice;
                         
-                        // Build table row with all columns
-                        // Greek columns have special classes (greek-iv, greek-delta, etc.) for visibility toggle
                         tr.innerHTML = `
                             <td class="call-data call-oich ${isCallITM ? 'itm-call' : ''}">${formatIndian(row.CALL_OICH)}</td>
                             <td class="call-data call-oi ${isCallITM ? 'itm-call' : ''}">${formatIndian(row.CALL_OI)}<br><small style="color: #666; font-size: 10px;">(${parseFloat(row.CALL_PMCOI) % 1 === 0 ? parseInt(row.CALL_PMCOI) : parseFloat(row.CALL_PMCOI).toFixed(2)}%)</small></td>
@@ -876,8 +876,10 @@
                             <td class="put-data put-oi ${isPutITM ? 'itm-put' : ''}">${formatIndian(row.PUT_OI)}<br><small style="color: #666; font-size: 10px;">(${parseFloat(row.PUT_PMPOI) % 1 === 0 ? parseInt(row.PUT_PMPOI) : parseFloat(row.PUT_PMPOI).toFixed(2)}%)</small></td>
                             <td class="put-data put-oich ${isPutITM ? 'itm-put' : ''}">${formatIndian(row.PUT_OICH)}</td>
                         `;
-                        tbody.appendChild(tr);
+                        fragment.appendChild(tr);
                     });
+                    
+                    tbody.appendChild(fragment);
                     
                     // Apply Greeks column visibility based on checkbox state
                     toggleGreeksColumns();
