@@ -188,7 +188,7 @@ def getLiveData(symbol=None, expiry=None, strikecount=None):
         cache_key = f"{use_symbol}_{use_expiry}_{use_strikecount}"
         current_time = time.time()
         
-        if cache_key in data_cache and (current_time - data_cache[cache_key]['timestamp']) < 0.5:
+        if cache_key in data_cache and (current_time - data_cache[cache_key]['timestamp']) < 2:
             return data_cache[cache_key]['data'], data_cache[cache_key]['quote_data'], data_cache[cache_key].get('pcr', 0)
         
         # Always try to get fresh fyers instance with valid token
