@@ -33,7 +33,7 @@
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; visibility: hidden; }
         table.ready { visibility: visible; }
         th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 999; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
-        td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 12px; transition: background 0.2s; line-height: 1.2; }
+        td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 14px; transition: background 0.2s; line-height: 1.2; }
         tbody tr:hover:not(.drawing-active) { background: #e2e8f0; }
         .drawing-mode tbody tr { pointer-events: none; }
         .drawing-mode tbody tr:hover { background: transparent !important; }
@@ -89,7 +89,14 @@
         .mark-toolbar.dragging { transition: none; }
         #marker-icon { cursor: move; }
         .mark-btn { pointer-events: auto; background: #2b2b33; border: 1px solid #3a3a44; color: #eee;
-            padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+            padding: 6px 10px; border-radius: 8px; cursor: pointer; position: relative; }
+        .mark-btn::after {
+            content: attr(title); position: absolute; bottom: 100%; left: 50%;
+            transform: translateX(-50%); background: rgba(0,0,0,0.9); color: #fff;
+            padding: 4px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap;
+            opacity: 0; pointer-events: none; transition: opacity 0s; z-index: 10000;
+        }
+        .mark-btn:hover::after { opacity: 1; }
         .mark-btn.active { background: #4a68ff; border-color: #4a68ff; color: #fff; }
         .mark-color { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; }
         .mark-row { display: flex; gap: 6px; align-items: center; }
