@@ -16,7 +16,7 @@
         .control-group label { display: block; margin-bottom: 4px; font-weight: 500; color: #656d76; font-size: 12px; }
         .control-group input { padding: 8px 12px; border: 1px solid #d0d7de; border-radius: 6px; font-size: 12px; background: #ffffff; color: #24292f; min-width: 120px; transition: all 0.3s ease; }
         .control-group input:focus { outline: none; border-color: #0969da; box-shadow: 0 0 0 2px rgba(9, 105, 218, 0.2); transform: translateY(-1px); }
-        .dropdown { position: absolute; top: 100%; left: 0; background: #ffffff; border: 1px solid #d0d7de; border-radius: 8px; max-height: 300px; overflow-y: scroll; display: none; z-index: 1000; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.1); scrollbar-width: thin; scrollbar-color: #d0d7de #ffffff; }
+        .dropdown { position: absolute; top: 100%; left: 0; background: #ffffff; border: 1px solid #d0d7de; border-radius: 8px; max-height: 300px; overflow-y: scroll; display: none; z-index: 1010; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.1); scrollbar-width: thin; scrollbar-color: #d0d7de #ffffff; }
         .dropdown::-webkit-scrollbar { width: 8px; }
         .dropdown::-webkit-scrollbar-track { background: #f6f8fa; border-radius: 4px; }
         .dropdown::-webkit-scrollbar-thumb { background: #d0d7de; border-radius: 4px; }
@@ -24,15 +24,15 @@
         .dropdown div { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #d0d7de; font-size: 14px; color: #24292f; transition: background 0.2s; }
         .dropdown div:hover { background-color: #f6f8fa; }
         .dropdown div:last-child { border-bottom: none; }
-        .market-info { background: #f6f8fa; padding: 8px 24px; border-bottom: 1px solid #d0d7de; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; position: sticky; top: 80px; z-index: 999; }
+        .market-info { background: #f6f8fa; padding: 8px 24px; border-bottom: 1px solid #d0d7de; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
         .symbol-info { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; min-width: 0; }
         .symbol-name { font-size: 16px; font-weight: 700; color: #24292f; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
         .ltp-info { display: flex; align-items: center; gap: 8px; }
         .ltp-value { font-size: 18px; font-weight: 800; color: #1a7f37; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
-        .table-container { background: #ffffff; margin: 0; overflow-x: auto; height: calc(100vh - 80px); overflow-y: auto; position: sticky; top: 80px; transition: all 0.3s ease; }
+        .table-container { background: #ffffff; margin: 0; overflow-x: auto; height: calc(100vh - 160px); overflow-y: auto; transition: all 0.3s ease; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: auto; visibility: hidden; }
         table.ready { visibility: visible; }
-        th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 10; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
+        th { background: #f6f8fa; color: #656d76; padding: 10px 8px; text-align: center; font-weight: 700; font-size: 12px; border-bottom: 1px solid #d0d7de; position: sticky; top: 0; z-index: 999; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
         td { padding: 4px 6px; text-align: center; border-bottom: 1px solid #d0d7de; font-size: 12px; transition: background 0.2s; line-height: 1.2; }
         tbody tr:hover:not(.drawing-active) { background: #e2e8f0; }
         .drawing-mode tbody tr { pointer-events: none; }
@@ -192,14 +192,13 @@
             <div id="mark-toolbar" class="mark-toolbar collapsed" role="toolbar" aria-label="Markup tools" style="position: absolute; top: 8px; right: 8px; z-index: 1001; cursor: move;">
                 <button class="mark-btn" id="marker-icon">🖊️</button>
                 <div class="mark-row">
-                    <button class="mark-btn" data-tool="pen">✏️</button>
-                    <button class="mark-btn" data-tool="highlighter">🖍️</button>
-                    <button class="mark-btn" data-tool="arrow">↗️</button>
-                    <button class="mark-btn" data-tool="rect">⬜</button>
-                    <button class="mark-btn" data-tool="ellipse">⭕</button>
-                    <button class="mark-btn" data-tool="text">📝</button>
-                    <button class="mark-btn" data-tool="eraser">🧽</button>
-                    <button class="mark-btn" id="deselect-tool">👆</button>
+                    <button class="mark-btn" data-tool="pen" title="Pen">✏️</button>
+                    <button class="mark-btn" data-tool="highlighter" title="Highlighter">🖍️</button>
+                    <button class="mark-btn" data-tool="arrow" title="Arrow">↗️</button>
+                    <button class="mark-btn" data-tool="rect" title="Rectangle">⬜</button>
+                    <button class="mark-btn" data-tool="ellipse" title="Ellipse">⭕</button>
+                    <button class="mark-btn" data-tool="eraser" title="Eraser">🧽</button>
+                    <button class="mark-btn" id="deselect-tool" title="Select">👆</button>
                     <span class="mark-sep"></span>
                     <label class="mark-row" style="gap:4px;color:#ccc;">Size
                         <input id="mark-size" type="range" min="2" max="40" value="6" style="pointer-events:auto;">
@@ -207,11 +206,11 @@
                     <span class="mark-sep"></span>
                     <div class="mark-row" id="mark-colors"></div>
                     <span class="mark-sep"></span>
-                    <button class="mark-btn" id="mark-undo">↶</button>
-                    <button class="mark-btn" id="mark-redo">↷</button>
-                    <button class="mark-btn" id="mark-clear">🗑️</button>
-                    <button class="mark-btn" id="mark-shot">📷</button>
-                    <button class="mark-btn" id="mark-toggle">👁️</button>
+                    <button class="mark-btn" id="mark-undo" title="Undo">↶</button>
+                    <button class="mark-btn" id="mark-redo" title="Redo">↷</button>
+                    <button class="mark-btn" id="mark-clear" title="Clear All">🗑️</button>
+                    <button class="mark-btn" id="mark-shot" title="Screenshot">📷</button>
+                    <button class="mark-btn" id="mark-toggle" title="Hide/Show">👁️</button>
                 </div>
             </div>
         </div>
@@ -1103,7 +1102,6 @@
                     'arrow': 'crosshair',
                     'rect': 'crosshair',
                     'ellipse': 'crosshair',
-                    'text': 'text',
                     'eraser': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 16 16\'%3E%3Cpath d=\'M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879z\' fill=\'%23ff69b4\'/%3E%3C/svg%3E") 8 8, auto'
                 };
                 
@@ -1344,6 +1342,8 @@
                         ctx.save();
                         ctx.globalCompositeOperation = 'destination-out';
                         ctx.lineWidth = strokeSize;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
                         ctx.beginPath();
                         ctx.moveTo(pathPoints[0].x, pathPoints[0].y);
                         for (let i = 1; i < pathPoints.length; i++) ctx.lineTo(pathPoints[i].x, pathPoints[i].y);
@@ -1351,14 +1351,11 @@
                         ctx.stroke();
                         ctx.restore();
                         break;
-                    case 'text':
-                        // preview handled by input; ignore
-                        break;
+
                 }
             }
         
             function finalizeDraw(x0, y0, x1, y1, points) {
-                if (tool === 'text') { createTextInput(x1, y1); return null; }
                 const action = { type: tool, color: strokeColor, size: strokeSize, x0, y0, x1, y1, points };
                 return action;
             }
@@ -1423,10 +1420,16 @@
                             drawArrow(a.x0, a.y0, a.x1, a.y1);
                             break;
                         case 'eraser':
+                            ctx.save();
+                            ctx.globalCompositeOperation = 'destination-out';
+                            ctx.lineWidth = a.size;
+                            ctx.lineCap = 'round';
+                            ctx.lineJoin = 'round';
                             ctx.beginPath();
                             ctx.moveTo(a.points[0].x, a.points[0].y);
                             for (let i = 1; i < a.points.length; i++) ctx.lineTo(a.points[i].x, a.points[i].y);
                             ctx.stroke();
+                            ctx.restore();
                             break;
                     }
                     if (a.type === 'eraser-stroke') ctx.restore();
@@ -1442,7 +1445,6 @@
                     case 'a': setTool('arrow'); break;
                     case 'r': setTool('rect'); break;
                     case 'e': setTool('ellipse'); break;
-                    case 't': setTool('text'); break;
                     case 'x': setTool('eraser'); break;
                     case 'z': if (e.shiftKey) redo(); else undo(); break;
                     case 'k': document.getElementById('mark-toggle').click(); break; // hide/show
